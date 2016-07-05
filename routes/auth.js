@@ -1,9 +1,13 @@
 // User authentication
 var jwt = require('jwt-simple');
- 
+
+var secret = '';
+var expires = 0;
+
 var auth = {
 	init: function(ini) {
-		// TODO: load secret and expiration time
+		secret = ini.auth.secret;
+		expires = ini.auth.expires;
 	},
 	
 	login: function(req, res) {
@@ -35,8 +39,7 @@ var auth = {
  
 		// Authentication succeed
 		if (dbUserObj) {
-			// If authentication is success, we will generate a token
-			// and dispatch it to the client
+			// Generate a token and dispatch it to the client
 			res.json(generateToken(dbUserObj));
 		}
 	},
@@ -44,13 +47,14 @@ var auth = {
 	// Validate user/password
 	validate: function(username, password) {
 		// TODO: check in DB
-		if (username != "admin" || password != "admin") {
+		if (username != "admin@lespot-bouygues.com" || password != "admin") {
 			return null;
 		}
 		
 		// Return user
 		var dbUserObj = {
 			name: 'admin',
+			role: 'admin',
 			username: 'admin@lespot-bouygues.com'
 		};
 
@@ -61,14 +65,14 @@ var auth = {
 // private method
 function generateToken(user) {
 	var dateObj = new Date();
-	var expires = dateObj.setDate(dateObj.getDate() + 7); // TODO: should be in .INI file
+	var expiresDate = dateObj.setDate(dateObj.getDate() + expires);
 	var token = jwt.encode({
-		exp: expires
-	}, "secret"); // TODO: should be in .INI file
+		exp: expiresDate
+	}, secret);
 
 	return {
 		token: token,
-		expires: expires,
+		expires: expiresDate,
 		user: user
 	};
 }
