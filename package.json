@@ -11,6 +11,7 @@
 		"soupselect": "latest",
 		"express": "latest",
 		"body-parser": "latest",
+		"morgan": "latest",
 		"mongodb": "latest",
 		"ini": "latest",
 		"jwt-simple": "latest",

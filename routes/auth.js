@@ -29,7 +29,7 @@ var auth = {
 	login: function(req, res) {
 		var username = req.body.username || '';
 		var password = req.body.password || '';
-		
+
 		// Invalid credentials
 		if (username == '' || password == '') {
 			res.status(401);
@@ -97,6 +97,33 @@ var auth = {
 				callback(true);
 			});
 		});
+	},
+	
+	// Validate request
+	validateRequest: function(req, res, next) {
+		var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
+		var username = (req.body && req.body.x_key) || (req.query && req.query.x_key) || req.headers['x-key'];
+		if (token || username) {
+			auth.validateToken(username, token, function(okay) {
+				if (okay) {
+					next();
+				} else {
+					res.status(401);
+					res.json({
+						"status": 401,
+						"message": "Invalid Token or Key"
+					});
+				}
+				return;
+			});
+		} else {
+			res.status(401);
+			res.json({
+				"status": 401,
+				"message": "Invalid Token or Key"
+			});
+			return;
+		}
 	}
 }
  
