@@ -75,6 +75,28 @@ var auth = {
 				callback(item);
 			});
 		});
+	},
+ 
+	// Validate token
+	validateToken: function(username, token, callback) {
+		// Check username presence
+		db.collection(usersCollection, function(err, collection) {
+			collection.findOne({'username':username}, function(err, item) {
+				// Not found or wrong token
+				if (!item || item.token != token) {
+					callback(false);
+					return;
+				}
+				
+				// Date expires
+				if (item.expires < Date.now()) {
+					callback(false);
+					return;
+				}
+				
+				callback(true);
+			});
+		});
 	}
 }
  
