@@ -1,0 +1,19 @@
+{
+	"name": "twistjs",
+	"description": "Twist",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"twitter": "latest",
+		"fb": "latest",
+		"yammer-rest-api-client": "latest",
+		"htmlparser": "latest",
+		"soupselect": "latest",
+		"express": "latest",
+		"body-parser": "latest",
+		"mongodb": "latest",
+		"ini": "latest",
+		"jwt-simple": "latest",
+		"http": "latest"
+	}
+}
