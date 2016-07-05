@@ -23,8 +23,11 @@ app.all('/*', function(req, res, next) {
 	}
 });
 
+// Register static route
+app.use(express.static(__dirname + '/client'));
+
 	
-// Load settings
+// Load settings then start web server
 settings.load(function(ini) {
 	// Init API
 	auth.init(ini);
