@@ -143,6 +143,7 @@ function updateToken(user, callback) {
 				callback(null);
 			} else {
 				callback({
+					uid: user._id,
 					token: user.token,
 					expires: user.expires
 				});
