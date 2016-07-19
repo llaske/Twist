@@ -1,0 +1,10 @@
+{
+  "name": "client",
+  "main": "index.js",
+  "styles": [
+    "css/*.less"
+  ],
+  "assets": [],
+  "devAssets": [],
+  "moduleDir": "src"
+}

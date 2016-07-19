@@ -24,23 +24,23 @@ app.all('/*', function(req, res, next) {
 });
 
 // Register static route
-app.use(express.static(__dirname + '/client'));
+app.use(express.static(__dirname + '/client/dist'));
 
-	
+
 // Load settings then start web server
 settings.load(function(ini) {
 	// Init API
 	auth.init(ini);
-	
+
 	// Register login
 	app.post("/login", auth.login);
-	
+
 	// Register API
 	app.all('/api/*', auth.validateRequest);
 	app.get('/api/hello', function(req, res) {
 		res.json("Hello world!");
 	});
-	
+
 	// Start listening
 	app.listen(ini.web.port);
 	console.log("Twist listening on port "+ini.web.port+"...");
