@@ -1,6 +1,10 @@
 var
 	util = require('enyo/utils'),
 	kind = require('enyo/kind'),
+	Button = require('moonstone/Button'),
+	Input = require('moonstone/Input'),
+	IconButton = require('moonstone/IconButton'),
+	InputDecorator = require('moonstone/InputDecorator'),
 	Popup = require('moonstone/Popup'),
 	Dialog = require('./dialog'),
 	Ajax = require('enyo/Ajax'),
@@ -11,10 +15,24 @@ module.exports = kind({
 	classes: 'moon enyo-fit',
 	components: [
 		{content: 'Twist'},
-		{name: 'message', content: ''},
+		{kind: InputDecorator, components: [
+			{name: 'url', kind: Input, placeholder: 'URL'}
+		]},
+		{kind: IconButton, src: '@./images/twistjs.svg', small: false, ontap: 'buttonTapped'},
 		{name: 'authDialog', kind: Dialog, onHide: 'hello'},
 		{name: 'errorPopup', kind: Popup, content: ''}
 	],
+
+	create: function() {
+		this.inherited(arguments);
+
+		var find = "?url=";
+		var index = window.location.href.indexOf(find);
+		if (index != -1) {
+			var href = window.location.href.substr(index+find.length);
+			this.$.url.setValue(decodeURI(href));
+		}
+	},
 
 	rendered: function() {
 		this.hello();
@@ -40,7 +58,6 @@ module.exports = kind({
 	},
 
 	apiCallResponse: function(inSender, inResponse) {
-		this.$.message.setContent(inResponse);
 	},
 
 	apiCallFail: function(inSender, inError) {

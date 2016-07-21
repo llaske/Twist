@@ -1,10 +1,19 @@
 {
-  "name": "client",
-  "main": "index.js",
-  "styles": [
-    "css/*.less"
-  ],
-  "assets": [],
-  "devAssets": [],
-  "moduleDir": "src"
+	"name": "client",
+	"main": "index.js",
+	"title": "Twist",
+	"styles": [
+		"css/*.less"
+	],
+	"assets": [
+		"images/*.svg"
+	],
+	"devAssets": [],
+	"moduleDir": "src",
+	"licenses": [
+		{
+			"type": "Apache-2.0",
+			"url": "http://www.apache.org/licenses/LICENSE-2.0"
+		}
+	]
 }
