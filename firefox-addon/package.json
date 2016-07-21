@@ -1,0 +1,16 @@
+{
+  "title": "Twist",
+  "name": "twist-addon",
+  "version": "0.0.1",
+  "description": "Add on for Twist tool",
+  "main": "index.js",
+  "author": "Lionel Laské",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "Apache V2",
+  "keywords": [
+    "jetpack"
+  ]
+}

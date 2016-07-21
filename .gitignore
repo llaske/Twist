@@ -4,6 +4,9 @@ client/.enyoconfig
 client/.npmignore
 client/dist
 
+#Firefox
+firefox-addon/*.xpi
+
 # Logs
 logs
 *.log
