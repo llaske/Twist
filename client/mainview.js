@@ -15,11 +15,11 @@ module.exports = kind({
 	classes: 'moon enyo-fit',
 	components: [
 		{content: 'Twist'},
-		{kind: InputDecorator, components: [
-			{name: 'url', kind: Input, placeholder: 'URL'}
+		{kind: InputDecorator, classes: 'twist-url-decorator', components: [
+			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL'}
 		]},
-		{kind: IconButton, src: '@./images/twistjs.svg', small: false, ontap: 'buttonTapped'},
-		{name: 'authDialog', kind: Dialog, onHide: 'hello'},
+		{kind: IconButton, src: '@./images/twistjs.svg', small: false, ontap: 'twistButtonTapped'},
+		{name: 'authDialog', kind: Dialog, onHide: 'twistButtonTapped'},
 		{name: 'errorPopup', kind: Popup, content: ''}
 	],
 
@@ -34,11 +34,7 @@ module.exports = kind({
 		}
 	},
 
-	rendered: function() {
-		this.hello();
-	},
-
-	hello: function() {
+	twistButtonTapped: function() {
 		var that = this;
 		Storage.getValue("token", function(token) {
 			if (!token) {
@@ -46,11 +42,12 @@ module.exports = kind({
 				return;
 			}
 			var ajax = new Ajax({
-				url: "http://localhost:8081/api/hello",
-				method: "GET",
-				handleAs: "json"
+				url: "http://localhost:8081/api/twist",
+				method: "POST",
+				handleAs: "json",
+				postBody: {uid: token.uid, url: encodeURI(that.$.url.getValue())}
 			});
-			ajax.headers = {"x-key":token.username,"x-access-token":token.token};
+			ajax.headers = {"x-key":token.username, "x-access-token":token.token};
 			ajax.response(util.bindSafely(that, 'apiCallResponse'));
 			ajax.error(util.bindSafely(that, 'apiCallFail'));
 			ajax.go();
@@ -58,6 +55,7 @@ module.exports = kind({
 	},
 
 	apiCallResponse: function(inSender, inResponse) {
+		this.$.url.setValue('');
 	},
 
 	apiCallFail: function(inSender, inError) {

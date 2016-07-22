@@ -18,14 +18,14 @@ var auth = {
 
 		// Connect to database
 		server = new mongo.Server(ini.database.server, ini.database.port, {auto_reconnect: true});
-		db = new mongo.Db(ini.database.name, server, {w:1}); 
+		db = new mongo.Db(ini.database.name, server, {w:1});
 		db.open(function(err, db) {
 			if(err) {
 			}
 			if (callback) callback();
 		});
 	},
-	
+
 	login: function(req, res) {
 		var username = req.body.username || '';
 		var password = req.body.password || '';
@@ -39,7 +39,7 @@ var auth = {
 			});
 			return;
 		}
- 
+
 		// Check if credentials are valid
 		auth.validate(username, password, function(dbUserObj) {
 			 // Authentication fails
@@ -51,7 +51,7 @@ var auth = {
 				});
 				return;
 			}
-	 
+
 			// Authentication succeed
 			updateToken(dbUserObj, function(token) {
 				res.json(token);
@@ -59,7 +59,7 @@ var auth = {
 			});
 		});
 	},
- 
+
 	// Validate user/password
 	validate: function(username, password, callback) {
 		// Check username presence
@@ -70,13 +70,13 @@ var auth = {
 					callback(null);
 					return;
 				}
-				
+
 				// Return user
 				callback(item);
 			});
 		});
 	},
- 
+
 	// Validate token
 	validateToken: function(username, token, callback) {
 		// Check username presence
@@ -87,18 +87,18 @@ var auth = {
 					callback(false);
 					return;
 				}
-				
+
 				// Date expires
 				if (item.expires < Date.now()) {
 					callback(false);
 					return;
 				}
-				
+
 				callback(true);
 			});
 		});
 	},
-	
+
 	// Validate request
 	validateRequest: function(req, res, next) {
 		var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
@@ -126,7 +126,7 @@ var auth = {
 		}
 	}
 }
- 
+
 // Update token for user
 function updateToken(user, callback) {
 	// Generate new token
@@ -151,5 +151,5 @@ function updateToken(user, callback) {
 		});
 	});
 }
- 
+
 module.exports = auth;

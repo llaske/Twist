@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var settings = require('./settings');
 var auth = require('./routes/auth');
+var post = require('./routes/post');
 
 var app = express()
 
@@ -31,15 +32,14 @@ app.use(express.static(__dirname + '/client/dist'));
 settings.load(function(ini) {
 	// Init API
 	auth.init(ini);
+	post.init(ini);
 
 	// Register login
 	app.post("/login", auth.login);
 
 	// Register API
 	app.all('/api/*', auth.validateRequest);
-	app.get('/api/hello', function(req, res) {
-		res.json("Hello world!");
-	});
+	app.post('/api/twist', post.create);
 
 	// Start listening
 	app.listen(ini.web.port);
