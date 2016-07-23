@@ -24,12 +24,17 @@ describe('init', function() {
 					if (this.done) this.done();
 				}};
 
-				// First count number of users in database
+				// First count number of twist in database
 				var initCount = 0;
+				var initUserCount = 0;
 				res.done = function() {
 					initCount = res.value.length;
+					res.done = function() {
+						initUserCount = res.value.length;
+					}
+					posts.findAll({uid: testUserUID}, res);
 				}
-				posts.findAll(null, res);
+				posts.findAll({}, res);
 
 				// Start test
 				this.timeout(2000);
@@ -40,7 +45,15 @@ describe('init', function() {
 							assert.equal(initCount, this.value.length);
 							done();
 						}
-						posts.findAll(null, res);
+						posts.findAll({}, res);
+					});
+
+					it('should return all twists for the user', function(done) {
+						res.done = function() {
+							assert.equal(initUserCount, this.value.length);
+							done();
+						}
+						posts.findAll({uid: testUserUID}, res);
 					});
 				});
 
@@ -51,7 +64,7 @@ describe('init', function() {
 							assert.equal('Invalid arguments', res.value.error);
 							done();
 						}
-						posts.create({body: {post: '{}'}}, res);
+						posts.create({body: {}}, res);
 					});
 
 					it('should create only with url set', function(done) {
@@ -59,7 +72,7 @@ describe('init', function() {
 							assert.equal('Invalid arguments', res.value.error);
 							done();
 						}
-						posts.create({body: {post: '{"uid":"'+testUserUID+'"}'}}, res);
+						posts.create({body: {uid:testUserUID}}, res);
 					});
 
 					it('should create only with uid set', function(done) {
@@ -67,7 +80,7 @@ describe('init', function() {
 							assert.equal('Invalid arguments', res.value.error);
 							done();
 						}
-						posts.create({body: {post: '{"url":"'+encodeURI('http://lespot-bouygues.com')+'"}'}}, res);
+						posts.create({body: {url:encodeURI('http://lespot-bouygues.com')}}, res);
 					});
 
 					it('should create a twist', function(done) {
@@ -77,7 +90,7 @@ describe('init', function() {
 							assert.notEqual(undefined, post._id);
 							done();
 						}
-						posts.create({body: {post: '{"url":"'+encodeURI('http://lespot-bouygues.com')+'","uid":"'+testUserUID+'"}'}}, res);
+						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID}}, res);
 					});
 
 					it('should add a new twist', function(done) {
@@ -85,7 +98,15 @@ describe('init', function() {
 							assert.equal(initCount+1, this.value.length);
 							done();
 						}
-						posts.findAll(null, res);
+						posts.findAll({}, res);
+					});
+
+					it('should add a new twist to the user', function(done) {
+						res.done = function() {
+							assert.equal(initUserCount+1, this.value.length);
+							done();
+						}
+						posts.findAll({}, res);
 					});
 				});
 			});

@@ -22,14 +22,14 @@ var post = {
 
 	create:  function(req, res) {
 		// Check params
-		var param = req.body;
+		var params = req.body;
 		var post = {};
-		if (!param.uid || !param.url) {
+		if (!params.uid || !params.url) {
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
-		post.uid = param.uid;
-		post.url = param.url;
+		post.uid = params.uid;
+		post.url = params.url;
 
 		// Create the new twist
 		db.collection(postsCollection, function (err, collection) {
@@ -44,9 +44,19 @@ var post = {
 	},
 
 	findAll: function(req, res) {
+		// Limit to an user
+		var query = {};
+		if (req.params && req.params.uid) {
+			if (!mongo.BSONPure.ObjectID.isValid(req.params.uid)) {
+				res.send();
+				return;
+			}
+			query = {uid: req.params.uid};
+		}
+
 		// Retrieve all twists
 		db.collection(postsCollection, function(err, collection) {
-			collection.find().toArray(function(err, items) {
+			collection.find(query).toArray(function(err, items) {
 				res.send(items);
 			});
 		});
