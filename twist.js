@@ -6,6 +6,7 @@ var logger = require('morgan');
 var settings = require('./settings');
 var auth = require('./routes/auth');
 var post = require('./routes/post');
+var publisher = require('./publisher');
 
 var app = express()
 
@@ -33,6 +34,7 @@ settings.load(function(ini) {
 	// Init API
 	auth.init(ini);
 	post.init(ini);
+	publisher.init(ini);
 
 	// Register login
 	app.post("/login", auth.login);

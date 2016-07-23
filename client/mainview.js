@@ -45,7 +45,7 @@ module.exports = kind({
 				url: "http://localhost:8081/api/twist",
 				method: "POST",
 				handleAs: "json",
-				postBody: {uid: token.uid, url: encodeURI(that.$.url.getValue())}
+				postBody: {uid: token.uid, url: encodeURI(that.$.url.getValue()), published: true}
 			});
 			ajax.headers = {"x-key":token.username, "x-access-token":token.token};
 			ajax.response(util.bindSafely(that, 'apiCallResponse'));

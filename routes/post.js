@@ -1,5 +1,6 @@
 // Twist handling
 var mongo = require('mongodb');
+var publisher = require('../publisher');
 
 var server;
 var db;
@@ -30,6 +31,7 @@ var post = {
 		}
 		post.uid = params.uid;
 		post.url = params.url;
+		post.published = params.published;
 
 		// Create the new twist
 		db.collection(postsCollection, function (err, collection) {
@@ -37,6 +39,16 @@ var post = {
 				if (err) {
 					res.send({'error':'An error has occurred creating post'});
 				} else {
+					// Publish if need
+					if (post.published) {
+						publisher.publish(result.ops[0], function(execres) {
+							result.ops[0].publishResult = execres;
+							res.send(result.ops[0]);
+						});
+						return;
+					}
+
+					// Else just send object
 					res.send(result.ops[0]);
 				}
 			});
