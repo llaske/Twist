@@ -28,7 +28,7 @@ module.exports = {
 	},
 
 	publish: function(twist, callback) {
-		// List all services for the user
+		// List all activated accounts for the user
 		var query = {uid: twist.uid, activated: true};
 		db.collection(accountsCollection, function(err, collection) {
 			collection.find(query).toArray(function(err, accounts) {
@@ -48,6 +48,7 @@ module.exports = {
 							}
 						});
 					} else {
+						//  No provider, go to next account
 						if (--waitingFor == 0) {
 							// Callback with results
 							callback(publishResult);
