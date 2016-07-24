@@ -34,17 +34,26 @@ module.exports = {
 			collection.find(query).toArray(function(err, accounts) {
 				// Publish to all account
 				var publishResult = [];
+				var waitingFor = accounts.length;
 				for (var i = 0 ; i < accounts.length ; i++) {
 					// Get the provider
 					var provider = services[accounts[i].provider];
 					if (provider) {
 						// Post with provider
-						publishResult.push(provider.post(accounts[i], twist));
+						provider.post(accounts[i], twist, function(result) {
+							publishResult.push(result);
+							if (--waitingFor == 0) {
+								// Callback with results
+								callback(publishResult);
+							}
+						});
+					} else {
+						if (--waitingFor == 0) {
+							// Callback with results
+							callback(publishResult);
+						}
 					}
 				}
-
-				// Callback with results
-				callback(publishResult);
 			});
 		});
 	}
