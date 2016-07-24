@@ -31,6 +31,8 @@ module.exports = {
 			}
 			if (error) {
 				result.error = error[0].code + ": " + error[0].message;
+			} else {
+				result.id = tweet.id;
 			}
 			callback(result);
 		});

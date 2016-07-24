@@ -31,7 +31,10 @@ var post = {
 		}
 		post.uid = params.uid;
 		post.url = params.url;
-		post.published = params.published;
+		if (params.published) {
+			post.published = params.published;
+		}
+		post.createdOn = post.updatedOn = new Date(Date.now());
 
 		// Create the new twist
 		db.collection(postsCollection, function (err, collection) {
