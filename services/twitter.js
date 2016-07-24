@@ -24,7 +24,8 @@ module.exports = {
 		});
 
 		// Post status update to Twitter
-		client.post('statuses/update', {status: twist.url},  function(error, tweet, response){
+		var url = twist.urlShortened ? twist.urlShortened : twist.url;
+		client.post('statuses/update', {status: url},  function(error, tweet, response){
 			var result = {
 				provider: 'twitter',
 				name: account.name
