@@ -3,6 +3,7 @@ var
 	kind = require('enyo/kind'),
 	Button = require('moonstone/Button'),
 	Input = require('moonstone/Input'),
+	TextArea = require('moonstone/TextArea'),
 	IconButton = require('moonstone/IconButton'),
 	InputDecorator = require('moonstone/InputDecorator'),
 	Popup = require('moonstone/Popup'),
@@ -16,9 +17,13 @@ module.exports = kind({
 	components: [
 		{content: 'Twist'},
 		{kind: InputDecorator, classes: 'twist-url-decorator', components: [
-			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL'}
+			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', oninput: 'updateCount'}
 		]},
 		{kind: IconButton, src: '@./images/twistjs.svg', small: false, ontap: 'twistButtonTapped'},
+		{name: 'count', content: '0', classes: "twist-count"},
+		{kind: InputDecorator, classes: "twist-text-decorator", components: [
+			{name: "text", kind: TextArea, classes: "twist-text", placeholder: 'Enter Twist here', oninput: 'updateCount'}
+		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'twistButtonTapped'},
 		{name: 'errorPopup', kind: Popup, content: ''}
 	],
@@ -34,6 +39,14 @@ module.exports = kind({
 		}
 	},
 
+	updateCount: function() {
+		var count = this.$.url.getValue().length+this.$.text.getValue().length;
+		if (this.$.text.getValue().length > 1) {
+			count++;
+		}
+		this.$.count.setContent(count);
+	},
+
 	twistButtonTapped: function() {
 		var that = this;
 		Storage.getValue("token", function(token) {
@@ -45,7 +58,12 @@ module.exports = kind({
 				url: "http://localhost:8081/api/twist",
 				method: "POST",
 				handleAs: "json",
-				postBody: {uid: token.uid, url: encodeURI(that.$.url.getValue()), published: true}
+				postBody: {
+					uid: token.uid,
+					url: encodeURI(that.$.url.getValue()),
+					text: that.$.text.getValue(),
+					published: true
+				}
 			});
 			ajax.headers = {"x-key":token.username, "x-access-token":token.token};
 			ajax.response(util.bindSafely(that, 'apiCallResponse'));

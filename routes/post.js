@@ -31,6 +31,7 @@ var post = {
 		}
 		post.uid = params.uid;
 		post.url = params.url;
+		post.text = params.text;
 		if (params.published) {
 			post.published = params.published;
 		}

@@ -87,12 +87,13 @@ describe('init', function() {
 						res.done = function() {
 							var post = res.value;
 							assert.equal(post.url, encodeURI('http://lespot-bouygues.com'));
+							assert.equal(post.text, 'Hello');
 							assert.notEqual(undefined, post._id);
 							assert.equal((Date.now()-post.createdOn.getTime())<1000, true);
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID}}, res);
+						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID, text: 'Hello'}}, res);
 					});
 
 					it('should add a new twist', function(done) {
