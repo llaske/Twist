@@ -62,6 +62,7 @@ module.exports = kind({
 					uid: token.uid,
 					url: encodeURI(that.$.url.getValue()),
 					text: that.$.text.getValue(),
+					clean: true,
 					published: true
 				}
 			});
@@ -74,6 +75,7 @@ module.exports = kind({
 
 	apiCallResponse: function(inSender, inResponse) {
 		this.$.url.setValue('');
+		this.$.text.setValue('');
 	},
 
 	apiCallFail: function(inSender, inError) {

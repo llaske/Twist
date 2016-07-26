@@ -29,21 +29,52 @@ module.exports = {
 	},
 
 	publish: function(twist, callback) {
-		// Call shortener
-		var results = [];
-		callShortener(twist, function(result) {
-			// Add shortener result if any
-			if (result) {
-				results.push(result);
-				if (result.urlShortened) {
-					twist.urlShortened = result.urlShortened;
-				}
-			}
+		// Call cleaner
+		if (twist.clean) {
+			callCleaner(twist, function(result) {
+				// Launch the rest of process
+				launchProcess(twist, callback)
+			});
+			return;
+		}
 
-			// Launch publication
-			publishWithAllAccounts(twist, results, callback);
-		});
+		// Launch the rest of process
+		launchProcess(twist, callback);
 	}
+}
+
+// Private: Launch process
+function launchProcess(twist, callback) {
+	var results = [];
+	callShortener(twist, function(result) {
+		// Add shortener result if any
+		if (result) {
+			results.push(result);
+			if (result.urlShortened) {
+				twist.urlShortened = result.urlShortened;
+			}
+		}
+
+		// Launch publication
+		publishWithAllAccounts(twist, results, callback);
+	});
+}
+
+// Private: Call url cleaner
+function callCleaner(twist, callback) {
+	// Look for query string
+	var queryIndex = twist.url.indexOf('?');
+	if (queryIndex == -1) {
+		// Not present, go to next call
+		callback(null);
+	}
+
+	// Clean url
+	twist.url = twist.url.substr(0, queryIndex);
+	callback({
+		provider: 'cleaner',
+		URLCleaned: twist.url
+	});
 }
 
 // Private: Call shortener

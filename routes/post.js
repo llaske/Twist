@@ -35,6 +35,9 @@ var post = {
 		if (params.published) {
 			post.published = params.published;
 		}
+		if (params.clean) {
+			post.clean = params.clean;
+		}
 		post.createdOn = post.updatedOn = new Date(Date.now());
 
 		// Create the new twist
