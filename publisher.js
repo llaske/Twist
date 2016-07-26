@@ -9,6 +9,9 @@ var servicesCollection;
 
 var services = [];
 
+var metaparser = require('./metaparser');
+
+
 module.exports = {
 	init: function(ini, callback) {
 		// Load settings
@@ -45,18 +48,21 @@ module.exports = {
 
 // Private: Launch process
 function launchProcess(twist, callback) {
-	var results = [];
-	callShortener(twist, function(result) {
-		// Add shortener result if any
-		if (result) {
-			results.push(result);
-			if (result.urlShortened) {
-				twist.urlShortened = result.urlShortened;
+	// Extract metadata
+	metaparser.process(twist, function(result) {
+		var results = [];
+		callShortener(twist, function(result) {
+			// Add shortener result if any
+			if (result) {
+				results.push(result);
+				if (result.urlShortened) {
+					twist.urlShortened = result.urlShortened;
+				}
 			}
-		}
 
-		// Launch publication
-		publishWithAllAccounts(twist, results, callback);
+			// Launch publication
+			publishWithAllAccounts(twist, results, callback);
+		});
 	});
 }
 
