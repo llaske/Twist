@@ -12,7 +12,7 @@ var settings = {
 };
 var testUserUID = "577ba1c317a3bd6ae3b13642";
 
-describe('init', function() {
+describe('init post', function() {
 	it('should log to database', function(done) {
 		posts.init(settings, function() {
 			done();

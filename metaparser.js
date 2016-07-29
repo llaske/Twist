@@ -1,4 +1,3 @@
-// http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html
 
 // Service to extract META TAG
 var request = require("request");
@@ -40,7 +39,6 @@ module.exports = {
 
 				// Return metadata
 				twist.metadata = metadata;
-console.log(metadata);
 				callback({
 					provider: 'metaparser',
 					metadata: metadata

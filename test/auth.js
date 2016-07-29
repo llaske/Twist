@@ -12,7 +12,7 @@ var settings = {
 	collections: { users: "users" }
 };
 
-describe('init', function() {
+describe('init auth', function() {
 
 	it('should log to database', function(done) {
 		auth.init(settings, function() {
@@ -37,7 +37,7 @@ describe('auth', function() {
 	};
 
 	var token = {};
-	
+
 	describe('#login()', function() {
 		it('need to have an user and password', function(done) {
 			res.done = function() {
@@ -46,7 +46,7 @@ describe('auth', function() {
 			}
 			auth.login({body:{}}, res);
 		});
-		
+
 		it('need to have a password', function(done) {
 			res.done = function() {
 				assert.equal(401, res.value.status);
@@ -54,7 +54,7 @@ describe('auth', function() {
 			}
 			auth.login({body:{username: "someone"}}, res);
 		});
-		
+
 		it('need to specify an existing user', function(done) {
 			res.done = function() {
 				assert.equal(401, res.value.status);
@@ -62,7 +62,7 @@ describe('auth', function() {
 			}
 			auth.login({body:{username: "someone", password: "xxx"}}, res);
 		});
-		
+
 		it('password should match', function(done) {
 			res.done = function() {
 				assert.equal(401, res.value.status);
@@ -70,7 +70,7 @@ describe('auth', function() {
 			}
 			auth.login({body:{username: "test@lespot-bouygues.com", password: "xxx"}}, res);
 		});
-		
+
 		it('should log correctly', function(done) {
 			res.done = function() {
 				assert.notEqual(undefined, res.value.uid);
@@ -82,7 +82,7 @@ describe('auth', function() {
 			auth.login({body:{username: "test@lespot-bouygues.com", password: "test"}}, res);
 		});
 	});
-	
+
 	describe('#validateRequest()', function() {
 		it('need to have an user and a token', function(done) {
 			res.done = function() {
@@ -99,15 +99,15 @@ describe('auth', function() {
 			}
 			auth.validateRequest({body:{x_key: "someone"}, query:{}, headers:[]}, res);
 		});
-		
+
 		it('need to specify an existing user', function(done) {
 			res.done = function() {
 				assert.equal(401, res.value.status);
 				done();
 			}
 			auth.validateRequest({body:{x_key: "someone", access_token: "xxx"}, query:{}, headers:[]}, res);
-		});	
-		
+		});
+
 		it('need to specify a valid token', function(done) {
 			res.done = function() {
 				assert.equal(401, res.value.status);
@@ -115,7 +115,7 @@ describe('auth', function() {
 			}
 			auth.validateRequest({body:{x_key: "test@lespot-bouygues.com", access_token: "xxx"}, query:{}, headers:[]}, res);
 		});
-		
+
 		it('token is valid', function(done) {
 			res.done = function(next) {
 				assert.equal(true, next);
@@ -123,7 +123,7 @@ describe('auth', function() {
 			}
 			auth.validateRequest({body:{x_key: "test@lespot-bouygues.com", access_token: token.token}, query:{}, headers:[]}, res, function() { res.next();});
 		});
-		
+
 		it('log with expired login', function(done) {
 			res.done = function() {
 				assert.notEqual(undefined, res.value.uid);
@@ -137,7 +137,7 @@ describe('auth', function() {
 				auth.login({body:{username: "test@lespot-bouygues.com", password: "test"}}, res);
 			});
 		});
-		
+
 		it('need to specify a token not expired', function(done) {
 			res.done = function() {
 				assert.equal(401, res.value.status);

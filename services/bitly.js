@@ -5,6 +5,10 @@ var request = require("request");
 
 
 module.exports = {
+	name: 'bitly',
+
+	type: 'service',
+	
 	process: function(account, twist, callback) {
 		// Check keys presence
 		var keys = account.keys;

@@ -43,6 +43,75 @@ module.exports = {
 
 		// Launch the rest of process
 		launchProcess(twist, callback);
+	},
+
+	clean: function(twist, callback) {
+		callCleaner(twist, function(result) {
+			callback(result);
+		});
+	},
+
+	shorten: function(twist, callback) {
+		callShortener(twist, function(result) {
+			callback(result);
+		});
+	},
+
+	getMetadata: function(twist, callback) {
+		metaparser.process(twist, function(result) {
+			callback(result);
+		});
+	},
+
+	publishOn: function(provider, twist, callback) {
+		// List all activated accounts for the user
+		var query = {uid: twist.uid, provider: provider.name, type: provider.type, activated: true};
+		getAccounts(query, function(accounts) {
+			// No account for this provider
+			if (provider == null || accounts.length == 0) {
+				callback(null);
+				return;
+			}
+
+			// Post with provider
+			provider.post(accounts[0], twist, function(result) {
+				callback(result);
+			});
+		});
+	},
+
+	getOn: function(provider, twist, callback) {
+		// List all activated accounts for the user
+		var query = {uid: twist.uid, provider: provider.name, type: provider.type, activated: true};
+		getAccounts(query, function(accounts) {
+			// No account for this provider
+			if (provider == null || accounts.length == 0) {
+				callback(null);
+				return;
+			}
+
+			// Get from this provider
+			provider.get(accounts[0], twist, function(result) {
+				callback(result);
+			});
+		});
+	},
+
+	deleteOn: function(provider, twist, callback) {
+		// List all activated accounts for the user
+		var query = {uid: twist.uid, provider: provider.name, type: provider.type, activated: true};
+		getAccounts(query, function(accounts) {
+			// No account for this provider
+			if (provider == null || accounts.length == 0) {
+				callback(null);
+				return;
+			}
+
+			// Delete with the provider
+			provider.delete(accounts[0], twist, function(result) {
+				callback(result);
+			});
+		});
 	}
 }
 
@@ -73,13 +142,14 @@ function callCleaner(twist, callback) {
 	if (queryIndex == -1) {
 		// Not present, go to next call
 		callback(null);
+		return;
 	}
 
 	// Clean url
 	twist.url = twist.url.substr(0, queryIndex);
 	callback({
 		provider: 'cleaner',
-		URLCleaned: twist.url
+		urlCleaned: twist.url
 	});
 }
 
@@ -87,26 +157,24 @@ function callCleaner(twist, callback) {
 function callShortener(twist, callback) {
 	// List all activated accounts for the user
 	var query = {uid: twist.uid, type: 'shortener', activated: true};
-	db.collection(accountsCollection, function(err, collection) {
-		collection.find(query).toArray(function(err, accounts) {
-			// No shortener, call next
-			if (accounts.length == 0) {
-				callback(null);
-				return;
-			}
+	getAccounts(query, function(accounts) {
+		// No shortener, call next
+		if (accounts.length == 0) {
+			callback(null);
+			return;
+		}
 
-			// Get the shortener
-			var provider = services[accounts[0].provider];
-			if (provider) {
-				// Post with provider
-				provider.process(accounts[0], twist, function(result) {
-					callback(result);
-				});
-			} else {
-				//  No provider, call next
-				callback(null);
-			}
-		});
+		// Get the shortener
+		var provider = services[accounts[0].provider];
+		if (provider) {
+			// Post with provider
+			provider.process(accounts[0], twist, function(result) {
+				callback(result);
+			});
+		} else {
+			//  No provider, call next
+			callback(null);
+		}
 	});
 }
 
@@ -114,30 +182,37 @@ function callShortener(twist, callback) {
 function publishWithAllAccounts(twist, results, callback) {
 	// List all activated accounts for the user
 	query = {uid: twist.uid, type: 'publisher', activated: true};
-	db.collection(accountsCollection, function(err, collection) {
-		collection.find(query).toArray(function(err, accounts) {
-			// Publish to all account
-			var waitingFor = accounts.length;
-			for (var i = 0 ; i < accounts.length ; i++) {
-				// Get the provider
-				var provider = services[accounts[i].provider];
-				if (provider) {
-					// Post with provider
-					provider.post(accounts[i], twist, function(result) {
-						results.push(result);
-						if (--waitingFor == 0) {
-							// Callback with results
-							callback(results);
-						}
-					});
-				} else {
-					//  No provider, go to next account
+	getAccounts(query, function(accounts) {
+		// Publish to all account
+		var waitingFor = accounts.length;
+		for (var i = 0 ; i < accounts.length ; i++) {
+			// Get the provider
+			var provider = services[accounts[i].provider];
+			if (provider) {
+				// Post with provider
+				provider.post(accounts[i], twist, function(result) {
+					results.push(result);
 					if (--waitingFor == 0) {
 						// Callback with results
 						callback(results);
 					}
+				});
+			} else {
+				//  No provider, go to next account
+				if (--waitingFor == 0) {
+					// Callback with results
+					callback(results);
 				}
 			}
+		}
+	});
+}
+
+// Private: get all accounts matching query
+function getAccounts(query, callback) {
+	db.collection(accountsCollection, function(err, collection) {
+		collection.find(query).toArray(function(err, accounts) {
+			callback(accounts);
 		});
 	});
 }
