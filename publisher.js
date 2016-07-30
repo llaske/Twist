@@ -10,6 +10,7 @@ var servicesCollection;
 var services = [];
 
 var metaparser = require('./metaparser');
+var imagepicker = require('./imagepicker');
 
 
 module.exports = {
@@ -59,6 +60,12 @@ module.exports = {
 
 	getMetadata: function(twist, callback) {
 		metaparser.process(twist, function(result) {
+			callback(result);
+		});
+	},
+
+	getImages: function(twist, callback) {
+		imagepicker.process(twist, function(result) {
 			callback(result);
 		});
 	},

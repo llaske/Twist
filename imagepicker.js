@@ -21,6 +21,33 @@ module.exports = {
 					return;
 				}
 
+				// Retrieve all images
+				var imageTags = soupselect.select(dom, "img");
+				imageTags.forEach(function(image) {
+					// Ignore local image
+					var src = image.attribs.src;
+					if (src.indexOf('data:') == 0) {
+						return;
+					}
+
+					// Convert to absolute URL
+					var url;
+					if (src.indexOf('http') == 0) {
+						url = src;
+					} else if (src.indexOf('//') == 0) {
+						url = 'http:' + src;
+					} else {
+						var dotdotslashslash = twist.url.indexOf('://');
+						var scheme = twist.url.substr(0, dotdotslashslash);
+						var serverEnd = twist.url.indexOf('/', dotdotslashslash+3);
+						var server = twist.url.substr(dotdotslashslash+3, (serverEnd != -1 ? serverEnd : twist.url.length)-scheme.length-3);
+						url = scheme + '://' + server + (src[0]!='/'?'/':'') + src;
+					}
+
+					// Add to images list
+					images.push(url);
+				});
+
 				// Return images set
 				twist.images = images;
 				callback({

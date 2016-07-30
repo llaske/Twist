@@ -73,6 +73,58 @@ describe('init publisher', function() {
 					});
 				});
 
+				describe('#getImages', function() {
+					it('should return images, test with LeSpot', function(done) {
+						publisher.getImages({url: "http://lespot-bouygues.com"}, function(result) {
+							assert.equal(true, result.images.length > 1);
+							for (var i = 0 ; i < result.images.length ; i++) {
+								assert.equal(0, result.images[i].indexOf('http'));
+							}
+							done();
+						});
+					});
+
+					it('should return images, test with LMI', function(done) {
+						publisher.getImages({url: "http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
+							assert.equal(true, result.images.length > 1);
+							for (var i = 0 ; i < result.images.length ; i++) {
+								assert.equal(0, result.images[i].indexOf('http'));
+							}
+							done();
+						});
+					});
+
+					it('should return images, test with La Tribune', function(done) {
+						publisher.getImages({url: "http://www.latribune.fr/entreprises-finance/services/transport-logistique/sans-uber-et-lyft-une-ville-texane-tente-de-s-organiser-differemment-581360.html"}, function(result) {
+							assert.equal(true, result.images.length > 1);
+							for (var i = 0 ; i < result.images.length ; i++) {
+								assert.equal(0, result.images[i].indexOf('http'));
+							}
+							done();
+						});
+					});
+
+					it('should return images, test with Ubergizmo', function(done) {
+						publisher.getImages({url: "http://fr.ubergizmo.com/2016/07/28/ecran-cinema-3d-sans-lunettes.html"}, function(result) {
+							assert.equal(true, result.images.length > 1);
+							for (var i = 0 ; i < result.images.length ; i++) {
+								assert.equal(0, result.images[i].indexOf('http'));
+							}
+							done();
+						});
+					});
+
+					it('should return images, test with iphon.fr', function(done) {
+						publisher.getImages({url: "http://www.iphon.fr/post/le-milliard-d-iphone-vendu-est-officiellement-atteint-857945"}, function(result) {
+							assert.equal(true, result.images.length > 1);
+							for (var i = 0 ; i < result.images.length ; i++) {
+								assert.equal(0, result.images[i].indexOf('http'));
+							}
+							done();
+						});
+					});
+				});
+
 				describe('#shorten', function() {
 					it('should return a short url', function(done) {
 						publisher.shorten({uid: testUserUID, url: "http://lespot-bouygues.com"}, function(result) {
