@@ -29,6 +29,7 @@ module.exports = {
 
 		// Load all services provider
 		services.twitter = require('./services/twitter');
+		services.yammer = require('./services/yammer');
 		services.bitly = require('./services/bitly');
 	},
 

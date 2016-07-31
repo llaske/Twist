@@ -4,6 +4,7 @@
 var assert = require('assert');
 var publisher = require('../publisher');
 var twitter = require('../services/twitter');
+var yammer = require('../services/yammer');
 
 // Connect to MongoDB
 var settings = {
@@ -161,6 +162,33 @@ describe('init publisher', function() {
 
 					it('should delete', function(done) {
 						publisher.deleteOn(twitter, {uid: testUserUID, id: tweetId}, function(result) {
+							assert.equal(undefined, result.error);
+							done();
+						});
+					});
+				});
+
+				describe('#publish on Yammer', function() {
+					var yamId = null;
+
+					it('should publish', function(done) {
+						publisher.publishOn(yammer, {uid: testUserUID, url: "http://lespot-bouygues.com", text: "Hello!"}, function(result) {
+							assert.notEqual(undefined, result.id);
+							yamId = result.id;
+							done();
+						});
+					});
+
+					it('should get', function(done) {
+						publisher.getOn(yammer, {uid: testUserUID, id: yamId}, function(result) {
+							assert.equal("Hello!", result.text);
+							assert.equal("http://lespot-bouygues.com", result.url);
+							done();
+						});
+					});
+
+					it('should delete', function(done) {
+						publisher.deleteOn(yammer, {uid: testUserUID, id: yamId}, function(result) {
 							assert.equal(undefined, result.error);
 							done();
 						});
