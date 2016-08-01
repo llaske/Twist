@@ -62,21 +62,94 @@ var post = {
 		});
 	},
 
+	update: function(req, res) {
+		// Check params
+		var params = req.body;
+		if (!params.uid || !params._id || !mongo.ObjectID.isValid(params._id)) {
+			res.send({'error': 'Invalid arguments'});
+			return;
+		}
+		var post = {};
+		post.uid = params.uid;
+		if (params.url) {
+			post.url = params.url;
+		}
+		if (params.text) {
+			post.text = params.text;
+		}
+		if (params.published) {
+			post.published = params.published;
+		}
+		if (params.clean) {
+			post.clean = params.clean;
+		}
+		post.updatedOn = new Date(Date.now());
+
+		// Update the Twist
+		db.collection(postsCollection, function(err, collection) {
+			collection.update({'_id':new mongo.ObjectID(params._id)}, {$set: post}, {safe:true}, function(err, result) {
+				if (err) {
+					res.send({'error':'An error has occurred'});
+				} else {
+					// Publish if need
+					if (post.published) {
+						publisher.publish(post, function(execres) {
+							post.publishResult = execres;
+							res.send(post);
+						});
+						return;
+					}
+
+					// Else just send object
+					res.send(post);
+				}
+			});
+		});
+	},
+
 	findAll: function(req, res) {
 		// Limit to an user
 		var query = {};
-		if (req.params && req.params.uid) {
-			if (!mongo.BSONPure.ObjectID.isValid(req.params.uid)) {
+		if (req.body && req.body.uid) {
+			if (!mongo.ObjectID.isValid(req.body.uid)) {
 				res.send();
 				return;
 			}
-			query = {uid: req.params.uid};
+			query.uid = req.body.uid;
 		}
 
 		// Retrieve all twists
 		db.collection(postsCollection, function(err, collection) {
 			collection.find(query).toArray(function(err, items) {
 				res.send(items);
+			});
+		});
+	},
+
+	findById: function(req, res) {
+		// Limit to an user
+		var query = {};
+		if (req.body && req.body.uid) {
+			if (!mongo.ObjectID.isValid(req.body.uid)) {
+				res.send();
+				return;
+			}
+			query.uid = req.body.uid;
+		}
+
+		// Limit to one twist
+		if (req.body && req.body._id) {
+			if (!mongo.ObjectID.isValid(req.body._id)) {
+				res.send();
+				return;
+			}
+			query._id = req.body._id;
+		}
+
+		// Retrieve twist matching
+		db.collection(postsCollection, function(err, collection) {
+			collection.findOne(query, function(err, item) {
+				res.send(item);
 			});
 		});
 	}

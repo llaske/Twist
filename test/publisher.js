@@ -14,7 +14,6 @@ var settings = {
 var testUserUID = "577ba1c317a3bd6ae3b13642";
 
 
-
 describe('init publisher', function() {
 	it('should log to database', function(done) {
 		publisher.init(settings, function() {
@@ -49,6 +48,8 @@ describe('init publisher', function() {
 				describe('#getMetadata', function() {
 					it('should return nothing if no medata', function(done) {
 						publisher.getMetadata({url: "http://lespot-bouygues.com"}, function(result) {
+							assert.notEqual(result.metadata, null);
+							assert.notEqual(result.metadata, undefined);
 							assert.equal(0, Object.keys(result.metadata).length);
 							done();
 						});
@@ -56,6 +57,8 @@ describe('init publisher', function() {
 
 					it('should get title and description', function(done) {
 						publisher.getMetadata({url: "http://www.latribune.fr/entreprises-finance/services/transport-logistique/sans-uber-et-lyft-une-ville-texane-tente-de-s-organiser-differemment-581360.html"}, function(result) {
+							assert.notEqual(result.metadata, null);
+							assert.notEqual(result.metadata, undefined);
 							assert.equal(2, Object.keys(result.metadata).length);
 							assert.equal("Sans Uber et Lyft, une ville texane tente de s&#039;organiser différemment", result.metadata.title);
 							assert.equal("A Austin, au Texas, des réglementations strictes ont été mises en place en mai dernier vis à vis des compagnies de VTC. Suite à cela Uber et Lyft ont quitté la ville et de nouvelles méthodes contournent ces interdictions.", result.metadata.description);
@@ -65,6 +68,8 @@ describe('init publisher', function() {
 
 					it('should get image, title and description', function(done) {
 						publisher.getMetadata({url: "http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
+							assert.notEqual(result.metadata, null);
+							assert.notEqual(result.metadata, undefined);
 							assert.equal(3, Object.keys(result.metadata).length);
 							assert.equal('http://images.itnewsinfo.com/lmi/articles/grande/000000052547.jpg', result.metadata.image);
 							assert.equal("Blockchain : l'attaque contre The DAO conduit Ethereum � proposer un fork - Le Monde Informatique", result.metadata.title);
@@ -77,6 +82,8 @@ describe('init publisher', function() {
 				describe('#getImages', function() {
 					it('should return images, test with LeSpot', function(done) {
 						publisher.getImages({url: "http://lespot-bouygues.com"}, function(result) {
+							assert.notEqual(result.images, null);
+							assert.notEqual(result.images, undefined);
 							assert.equal(true, result.images.length > 1);
 							for (var i = 0 ; i < result.images.length ; i++) {
 								assert.equal(0, result.images[i].indexOf('http'));
@@ -87,6 +94,8 @@ describe('init publisher', function() {
 
 					it('should return images, test with LMI', function(done) {
 						publisher.getImages({url: "http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
+							assert.notEqual(result.images, null);
+							assert.notEqual(result.images, undefined);
 							assert.equal(true, result.images.length > 1);
 							for (var i = 0 ; i < result.images.length ; i++) {
 								assert.equal(0, result.images[i].indexOf('http'));
@@ -97,6 +106,8 @@ describe('init publisher', function() {
 
 					it('should return images, test with La Tribune', function(done) {
 						publisher.getImages({url: "http://www.latribune.fr/entreprises-finance/services/transport-logistique/sans-uber-et-lyft-une-ville-texane-tente-de-s-organiser-differemment-581360.html"}, function(result) {
+							assert.notEqual(result.images, null);
+							assert.notEqual(result.images, undefined);
 							assert.equal(true, result.images.length > 1);
 							for (var i = 0 ; i < result.images.length ; i++) {
 								assert.equal(0, result.images[i].indexOf('http'));
@@ -107,6 +118,8 @@ describe('init publisher', function() {
 
 					it('should return images, test with Ubergizmo', function(done) {
 						publisher.getImages({url: "http://fr.ubergizmo.com/2016/07/28/ecran-cinema-3d-sans-lunettes.html"}, function(result) {
+							assert.notEqual(result.images, null);
+							assert.notEqual(result.images, undefined);
 							assert.equal(true, result.images.length > 1);
 							for (var i = 0 ; i < result.images.length ; i++) {
 								assert.equal(0, result.images[i].indexOf('http'));
@@ -117,6 +130,8 @@ describe('init publisher', function() {
 
 					it('should return images, test with iphon.fr', function(done) {
 						publisher.getImages({url: "http://www.iphon.fr/post/le-milliard-d-iphone-vendu-est-officiellement-atteint-857945"}, function(result) {
+							assert.notEqual(result.images, null);
+							assert.notEqual(result.images, undefined);
 							assert.equal(true, result.images.length > 1);
 							for (var i = 0 ; i < result.images.length ; i++) {
 								assert.equal(0, result.images[i].indexOf('http'));
@@ -147,6 +162,7 @@ describe('init publisher', function() {
 
 					it('should publish', function(done) {
 						publisher.publishOn(twitter, {uid: testUserUID, url: "http://lespot-bouygues.com", text: "Hello!"}, function(result) {
+							assert.equal(undefined, result.error);
 							assert.notEqual(undefined, result.id);
 							tweetId = result.id;
 							done();
@@ -155,6 +171,8 @@ describe('init publisher', function() {
 
 					it('should get', function(done) {
 						publisher.getOn(twitter, {uid: testUserUID, id: tweetId}, function(result) {
+							assert.notEqual(result.text, null);
+							assert.notEqual(result.text, undefined);
 							assert.equal(0, result.text.indexOf("Hello! http"));
 							done();
 						});
@@ -181,6 +199,8 @@ describe('init publisher', function() {
 
 					it('should get', function(done) {
 						publisher.getOn(yammer, {uid: testUserUID, id: yamId}, function(result) {
+							assert.notEqual(result.text, null);
+							assert.notEqual(result.text, undefined);
 							assert.equal("Hello!", result.text);
 							assert.equal("http://lespot-bouygues.com", result.url);
 							done();
