@@ -204,6 +204,8 @@ describe('init post', function() {
 					});
 				});
 
+				this.timeout(8000);
+
 				describe('#short()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
@@ -239,6 +241,64 @@ describe('init post', function() {
 						posts.short({body: {uid:testUserUID, _id:newTwistId}}, res);
 					});
 				});
+
+				describe('#metadata()', function() {
+					var metadataTwistId = null;
+
+					it('should create a twist for metadata', function(done) {
+						res.done = function() {
+							var post = res.value;
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(post.text, undefined);
+							assert.equal(post.url, encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'));
+							assert.notEqual(undefined, post._id);
+							metadataTwistId = post._id;
+							assert.equal((Date.now()-post.createdOn.getTime())<1000, true);
+							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
+							done();
+						}
+						posts.create({body: {url:encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'),uid:testUserUID}}, res);
+					});
+
+					it('should do nothing without uid and id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.metadata({body: {}}, res);
+					});
+
+					it('should do nothing without id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.metadata({body: {uid:testUserUID}}, res);
+					});
+
+					it('should do nothing with an invalid id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.metadata({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+					});
+
+					it('should get metadata', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value.metadata, null);
+							assert.notEqual(res.value.metadata, undefined);
+							assert.equal(3, Object.keys(res.value.metadata).length);
+							assert.equal('http://images.itnewsinfo.com/lmi/articles/grande/000000052547.jpg', res.value.metadata.image);
+							assert.equal("Blockchain : l'attaque contre The DAO conduit Ethereum � proposer un fork - Le Monde Informatique", res.value.metadata.title);
+							assert.equal("L'exploitation d'une faille dans The DAO, organisation autonome d�centralis�e bas�e sur la blockchain d'Ethereum, a permis � un utilisateur de subtili...", res.value.metadata.description);
+							done();
+						}
+						posts.metadata({body: {uid:testUserUID, _id:metadataTwistId}}, res);
+					});
+				});
+
 			});
 		});
 	});

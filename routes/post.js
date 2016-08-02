@@ -31,7 +31,9 @@ module.exports = {
 		}
 		post.uid = params.uid;
 		post.url = params.url;
-		post.text = params.text;
+		if (params.text) {
+			post.text = params.text;
+		}
 		if (params.published) {
 			post.published = params.published;
 		}
@@ -144,6 +146,22 @@ module.exports = {
 
 			// Call shortener
 			publisher.shorten(twist, function(result) {
+				res.send(result);
+			});
+		});
+	},
+
+	metadata: function(req, res) {
+		// Get post
+		getPost(req.body, function(twist) {
+			// Invalid twist
+			if (!twist) {
+				res.send();
+				return;
+			}
+
+			// Get metadata
+			publisher.getMetadata(twist, function(result) {
 				res.send(result);
 			});
 		});
