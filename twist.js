@@ -42,6 +42,9 @@ settings.load(function(ini) {
 	// Register API
 	app.all('/api/*', auth.validateRequest);
 	app.post('/api/twist', post.create);
+	app.put('/api/twist', post.update);
+	app.get('/api/twist/:id', post.findById);
+	app.get('/api/twist/:id/short', post.short);
 
 	// Start listening
 	app.listen(ini.web.port);

@@ -203,6 +203,42 @@ describe('init post', function() {
 						posts.findById({body: {uid:testUserUID, _id:newTwistId}}, res);
 					});
 				});
+
+				describe('#short()', function() {
+					it('should do nothing without uid and id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.short({body: {}}, res);
+					});
+
+					it('should do nothing without id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.short({body: {uid:testUserUID}}, res);
+					});
+
+					it('should do nothing with an invalid id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.short({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+					});
+
+					it('should call shortener', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.equal("http://bit.ly/11vmmy1", res.value.urlShortened);
+							done();
+						}
+						posts.short({body: {uid:testUserUID, _id:newTwistId}}, res);
+					});
+				});
 			});
 		});
 	});

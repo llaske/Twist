@@ -6,7 +6,7 @@ var server;
 var db;
 var postsCollection;
 
-var post = {
+module.exports = {
 	init: function(ini, callback) {
 		// Load settings
 		postsCollection = ini.collections.posts;
@@ -127,32 +127,58 @@ var post = {
 	},
 
 	findById: function(req, res) {
-		// Limit to an user
-		var query = {};
-		if (req.body && req.body.uid) {
-			if (!mongo.ObjectID.isValid(req.body.uid)) {
+		// Get post
+		getPost(req.body, function(item) {
+			res.send(item);
+		});
+	},
+
+	short: function(req, res) {
+		// Get post
+		getPost(req.body, function(twist) {
+			// Invalid twist
+			if (!twist) {
 				res.send();
 				return;
 			}
-			query.uid = req.body.uid;
-		}
 
-		// Limit to one twist
-		if (req.body && req.body._id) {
-			if (!mongo.ObjectID.isValid(req.body._id)) {
-				res.send();
-				return;
-			}
-			query._id = req.body._id;
-		}
-
-		// Retrieve twist matching
-		db.collection(postsCollection, function(err, collection) {
-			collection.findOne(query, function(err, item) {
-				res.send(item);
+			// Call shortener
+			publisher.shorten(twist, function(result) {
+				res.send(result);
 			});
 		});
 	}
 }
 
-module.exports = post;
+// Private: get a twist
+function getPost(params, callback) {
+	// Get params
+	if (!params) {
+		callback();
+		return;
+	}
+	var uid = params.uid;
+	var id = params._id;
+
+	// Limit to an user
+	var query = {};
+	if (!uid || !mongo.ObjectID.isValid(uid)) {
+		callback();
+		return;
+	}
+	query.uid = uid;
+
+	// Limit to a specific twist
+	if (!id || !mongo.ObjectID.isValid(id)) {
+		callback();
+		return;
+	}
+	query._id = id;
+
+	// Retrieve twist matching
+	db.collection(postsCollection, function(err, collection) {
+		collection.findOne(query, function(err, item) {
+			callback(item);
+		});
+	});
+}
