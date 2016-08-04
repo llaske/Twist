@@ -299,6 +299,52 @@ describe('init post', function() {
 					});
 				});
 
+				describe('#images()', function() {
+					it('should do nothing without uid and id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.images({body: {}}, res);
+					});
+
+					it('should do nothing without id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.images({body: {uid:testUserUID}}, res);
+					});
+
+					it('should do nothing with an invalid id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.images({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+					});
+
+					it('should get images from LeSpot', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value.images, null);
+							assert.notEqual(res.value.images, undefined);
+							assert.equal(true, res.value.images.length > 1);
+							done();
+						}
+						posts.images({body: {uid:testUserUID, _id:newTwistId}}, res);
+					});
+
+					it('should get images from LMI', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value.images, null);
+							assert.notEqual(res.value.images, undefined);
+							assert.equal(true, res.value.images.length > 1);
+							done();
+						}
+						posts.images({body: {uid:testUserUID, _id:metadataTwistId}}, res);
+					});
+				});
+
 				describe('#delete()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {

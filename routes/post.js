@@ -193,6 +193,22 @@ module.exports = {
 				res.send(result);
 			});
 		});
+	},
+
+	images: function(req, res) {
+		// Get post
+		getPost(req.body, function(twist) {
+			// Invalid twist
+			if (!twist) {
+				res.send();
+				return;
+			}
+
+			// Get images
+			publisher.getImages(twist, function(result) {
+				res.send(result);
+			});
+		});
 	}
 }
 
