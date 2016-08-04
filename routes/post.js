@@ -109,6 +109,34 @@ module.exports = {
 		});
 	},
 
+	delete: function(req, res) {
+		// check params
+		var params = req.body;
+		if (!params) {
+			res.send({'error': 'Invalid arguments'});
+			return;
+		}
+		var uid = params.uid;
+		var id = params._id;
+		if (!uid || !mongo.ObjectID.isValid(uid)) {
+			res.send({'error': 'Invalid arguments'});
+			return;
+		}
+		if (!id || !mongo.ObjectID.isValid(id)) {
+			res.send({'error': 'Invalid arguments'});
+			return;
+		}
+		db.collection(postsCollection, function(err, collection) {
+			collection.remove({'_id':new mongo.ObjectID(id), 'uid':uid}, function(err, result) {
+				if (err) {
+					res.send({'error':'An error has occurred'});
+				} else {
+					res.send({_id:id});
+				}
+			});
+		});
+	},
+
 	findAll: function(req, res) {
 		// Limit to an user
 		var query = {};

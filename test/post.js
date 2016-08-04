@@ -242,8 +242,8 @@ describe('init post', function() {
 					});
 				});
 
+				var metadataTwistId = null;
 				describe('#metadata()', function() {
-					var metadataTwistId = null;
 
 					it('should create a twist for metadata', function(done) {
 						res.done = function() {
@@ -299,6 +299,67 @@ describe('init post', function() {
 					});
 				});
 
+				describe('#delete()', function() {
+					it('should do nothing without uid and id', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.notEqual(undefined, res.value.error);
+							done();
+						}
+						posts.delete({body: {}}, res);
+					});
+
+					it('should do nothing without id', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.notEqual(undefined, res.value.error);
+							done();
+						}
+						posts.delete({body: {uid:testUserUID}}, res);
+					});
+
+					it('should delete one', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.equal(newTwistId, res.value._id);
+							done();
+						}
+						posts.delete({body: {uid:testUserUID, _id:newTwistId}}, res);
+					});
+
+					it('should delete two', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.equal(metadataTwistId, res.value._id);
+							done();
+						}
+						posts.delete({body: {uid:testUserUID, _id:metadataTwistId}}, res);
+					});
+
+					it('should retrieve init count', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(initCount, res.value.length);
+							done();
+						}
+						posts.findAll({}, res);
+					});
+
+					it('should retrieve init user count', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(initUserCount, res.value.length);
+							done();
+						}
+						posts.findAll({body: {uid: testUserUID}}, res);
+					});
+				});
 			});
 		});
 	});
