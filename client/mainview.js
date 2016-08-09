@@ -1,6 +1,7 @@
 var
 	util = require('enyo/utils'),
 	kind = require('enyo/kind'),
+	platform = require('enyo/platform'),
 	Button = require('moonstone/Button'),
 	Input = require('moonstone/Input'),
 	TextArea = require('moonstone/RichText'),
@@ -42,12 +43,15 @@ module.exports = kind({
 
 		// Initialize
 		Spotlight.initialize(this);
+		this.replaceMode = false;
+		this.replaceValue = "";
 	},
 
 	rendered: function() {
 		this.inherited(arguments);
 
 		this.$.url.focus();
+		appendNode(this.$.text.hasNode(), "twist-in-text", "&nbsp;", this.$.text.getSelection());
 	},
 
 	focused: function(ctrl) {
@@ -66,8 +70,8 @@ module.exports = kind({
 
 	keyDown: function(ctrl, e) {
 		// If TAB press in hashtag mode, replace by current selection
-		if (e.keyCode == 9 && isInHashtag(ctrl.getSelection())) {
-			ctrl.getSelection().anchorNode.nodeValue = "#XXX";
+		if (e.keyCode == 9 && this.replaceMode) {
+			this.$.text.removeSelection();
 			e.preventDefault();
 		}
 	},
@@ -81,36 +85,49 @@ module.exports = kind({
 		}
 
 		// In hashtag mode, wait end character
-		var textValue = this.$.text.getValue();
 		var selection = this.$.text.getSelection();
-		var hashtagMode = isInHashtag(selection);
+		var hashtagMode = this.replaceMode || isInHashtag(selection);
+		var char = String.fromCharCode(e.charCode);
 		if (hashtagMode) {
-			var char = String.fromCharCode(e.charCode);
 			if (!char.match(/[a-zA-Z_]/i)) {
 				// Leave hashtag mode
 				if (e.charCode == 32) {
 					char = "&nbsp;"
 				}
-				textValue = textValue.replace(new RegExp('<br>','g'), '');
-				if (isLastElement(selection)) {
-					this.$.text.setValue(textValue+char);
-				} else {
-					this.$.text.setValue(textValue);
-					this.$.text.insertAtCursor(char);
+				if (this.replaceMode) {
+					selection.deleteFromDocument();
 				}
+				appendNode(this.$.text.hasNode(), "twist-in-text", char, selection);
+				this.replaceMode = false;
+				this.replaceValue = '';
 				e.preventDefault();
 				return;
+			} else {
+				// Intellisense proposal
+				var tags = ["microsoft", "mobile", "android", "dotnet", "facebook", "apple"];
+				var current;
+				if (this.replaceMode) {
+					current = this.replaceValue+char.toLowerCase();
+				} else {
+				 	current = (getRawSelection(selection)+char).toLowerCase();
+				}
+				for (var i = 0 ; i < tags.length ; i++) {
+console.log("Look for <"+current+"> in <"+tags[i]+">");
+					if (tags[i].indexOf(current) == 0) {
+						var delta = platform.firefox ? -this.replaceValue.length : 1; // HACK: Firefox handle selection differently
+						this.$.text.insertAtCursor(tags[i].substr(current.length-1));
+						selection.extend(selection.anchorNode, current.length+delta);
+						this.replaceMode = true;
+						this.replaceValue = current;
+						e.preventDefault();
+						break;
+					}
+				}
 			}
 		} else {
 			// # key enter in hashtag mode
 			if (e.charCode == 35) {
-				var char = '<div class="twist-tag-in-text">#</div>';
-				if (isLastElement(this.$.text.getSelection())) {
-					this.$.text.setValue(textValue+char);
-				} else {
-					this.$.text.setValue(textValue);
-					this.$.text.insertAtCursor(char);
-				}
+				appendNode(this.$.text.hasNode(), "twist-tag-in-text", "#", selection);
 				e.preventDefault();
 				return;
 			}
@@ -191,30 +208,46 @@ function getRawtext(richtext) {
 
 // Private: Detect if the current selection is in hashtag mode
 function isInHashtag(selection) {
-	if (selection.focusOffset == 0) {
+	if (!selection || !selection.anchorNode || !selection.anchorNode.parentNode) {
 		return false;
 	}
-	var nodeValue = selection.anchorNode.nodeValue;
-	if (nodeValue[0] == '#') {
-		var inHashtag = false;
-		for (var i = nodeValue.length-1 ; i >= 0 ; i--) {
-			var current = nodeValue[i];
-			if (current.match(/[a-zA-Z_]/i)) {
-				continue;
-			}
-			if (current == '#') {
-				inHashtag = true;
-				break;
-			}
-			break;
-		}
-		return inHashtag;
+	if (selection.anchorNode.className == "twist-tag-in-text") {
+		return true;
+	} else if (selection.anchorNode.parentNode.className == "twist-tag-in-text") {
+		return true;
 	}
 	return false;
 }
 
-// Private: Test if selection is on the last element of the text
-function isLastElement(selection) {
-	// TODO: Not clear how for the moment
-	return true;
+// Private: Get current selection raw text
+function getRawSelection(selection) {
+	if (!selection || !selection.anchorNode || !selection.anchorNode.parentNode) {
+		return "";
+	}
+	if (selection.anchorNode.className == "twist-tag-in-text") {
+		return "";
+	} else if (selection.anchorNode.parentNode.className == "twist-tag-in-text") {
+		var text = '';
+		var nodes = selection.anchorNode.parentNode.childNodes;
+		for (var i = 0 ; i < nodes.length ; i++) {
+			text += (nodes[i].nodeValue);
+		}
+		return text.substr(1);
+	}
+	return "";
+}
+
+// Private: Create a new node
+function appendNode(root, className, text, selection) {
+	var container = document.createElement("div");
+	container.className = className;
+	container.innerHTML = text;
+	root.appendChild(container);
+	var range = document.createRange();
+	if (selection) {
+		range.selectNode(container);
+		selection.removeAllRanges();
+		selection.addRange(range);
+		selection.collapse(container, 1);
+	}
 }
