@@ -24,7 +24,7 @@ module.exports = kind({
 		{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
 		{name: 'count', content: '0', classes: "twist-count"},
 		{name: 'textDecorator', kind: InputDecorator, spotlight: true, classes: "twist-text-decorator", components: [
-			{name: "text", kind: TextArea, classes: "twist-text", placeholder: 'Enter Twist here', onkeypress: 'keyPressed', onkeydown: 'keyDown', oninput: 'updateCount', onfocus: 'focused'}
+			{name: "text", kind: TextArea, classes: "twist-text", placeholder: 'Enter Twist here', onkeypress: 'keyPressed', onkeydown: 'keyDown', oninput: 'inputChange', onfocus: 'focused'}
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'createTwist'},
 		{name: 'errorPopup', kind: Popup, content: ''}
@@ -51,7 +51,7 @@ module.exports = kind({
 		this.inherited(arguments);
 
 		this.$.url.focus();
-		appendNode(this.$.text.hasNode(), "twist-in-text", "&nbsp;", this.$.text.getSelection());
+		appendNode(this.$.text, "twist-in-text", "&nbsp;");
 	},
 
 	focused: function(ctrl) {
@@ -66,6 +66,12 @@ module.exports = kind({
 		}
 		newFocus.addClass('twist-focused');
 		oldFocus.removeClass('twist-focused');
+	},
+
+	inputChange: function(ctrl, e) {
+		if (!this.updateCount(ctrl)) {
+			appendNode(this.$.text, "twist-in-text", "&nbsp;");
+		}
 	},
 
 	keyDown: function(ctrl, e) {
@@ -97,7 +103,7 @@ module.exports = kind({
 				if (this.replaceMode) {
 					selection.deleteFromDocument();
 				}
-				appendNode(this.$.text.hasNode(), "twist-in-text", char, selection);
+				appendNode(this.$.text, "twist-in-text", char);
 				this.replaceMode = false;
 				this.replaceValue = '';
 				e.preventDefault();
@@ -127,7 +133,7 @@ console.log("Look for <"+current+"> in <"+tags[i]+">");
 		} else {
 			// # key enter in hashtag mode
 			if (e.charCode == 35) {
-				appendNode(this.$.text.hasNode(), "twist-tag-in-text", "#", selection);
+				appendNode(this.$.text, "twist-tag-in-text", "#");
 				e.preventDefault();
 				return;
 			}
@@ -140,14 +146,15 @@ console.log("Look for <"+current+"> in <"+tags[i]+">");
 		this.publishTwist();
 	},
 
-	updateCount: function(ctrl, e) {
-		var textRaw = getRawtext(ctrl.value);
+	updateCount: function(ctrl) {
+		var textRaw = getRawtext(ctrl);
 		var textLength = textRaw.length;
 		var count = this.$.url.getValue().length+textLength;
 		if (textLength > 1) {
 			count++;
 		}
 		this.$.count.setContent(count);
+		return count;
 	},
 
 	createTwist: function() {
@@ -198,12 +205,16 @@ console.log("Look for <"+current+"> in <"+tags[i]+">");
 
 // Private: Convert RichText into a raw text
 function getRawtext(richtext) {
-	var textRaw = richtext;
-	textRaw = textRaw.replace(new RegExp('<div class="twist-tag-in-text">','g'), '');
-	textRaw = textRaw.replace(new RegExp('</div>','g'), '');
-	textRaw = textRaw.replace(new RegExp('<br>','g'), '');
-	textRaw = textRaw.replace(new RegExp('&nbsp;','g'), ' ');
-	return textRaw;
+	var root = richtext.hasNode();
+	if (!root) {
+		return '';
+	}
+	var nodes = root.childNodes;
+	var rawtext = '';
+	for (var i = 0 ; i < nodes.length ; i++) {
+		rawtext += nodes[i].innerText;
+	}
+	return rawtext;
 }
 
 // Private: Detect if the current selection is in hashtag mode
@@ -219,7 +230,7 @@ function isInHashtag(selection) {
 	return false;
 }
 
-// Private: Get current selection raw text
+// Private: Get current selection as raw text
 function getRawSelection(selection) {
 	if (!selection || !selection.anchorNode || !selection.anchorNode.parentNode) {
 		return "";
@@ -230,20 +241,25 @@ function getRawSelection(selection) {
 		var text = '';
 		var nodes = selection.anchorNode.parentNode.childNodes;
 		for (var i = 0 ; i < nodes.length ; i++) {
-			text += (nodes[i].nodeValue);
+			text += nodes[i].nodeValue;
 		}
 		return text.substr(1);
 	}
 	return "";
 }
 
-// Private: Create a new node
-function appendNode(root, className, text, selection) {
+// Private: Create a new node into the current selection
+function appendNode(ctrl, className, text) {
+	var root = ctrl.hasNode();
+	if (!root) {
+		return;
+	}
 	var container = document.createElement("div");
 	container.className = className;
 	container.innerHTML = text;
 	root.appendChild(container);
 	var range = document.createRange();
+	var selection = ctrl.getSelection();
 	if (selection) {
 		range.selectNode(container);
 		selection.removeAllRanges();
