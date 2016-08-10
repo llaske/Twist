@@ -55,7 +55,6 @@ module.exports = kind({
 	},
 
 	focused: function(ctrl) {
-		console.log(ctrl.name+" focused!");
 		var newFocus, oldFocus;
 		if (ctrl.name == 'url') {
 			newFocus = this.$.urlDecorator;
@@ -83,8 +82,13 @@ module.exports = kind({
 	},
 
 	keyPressed: function(ctrl, e){
+		// Ignore BACK
+		if (e.charCode == 0) {
+			return;
+		}
+
 		// ENTER key validate the twist
-		if (e.charCode == 13) {
+		else if (e.charCode == 13) {
 			e.preventDefault();
 			this.publishTwist();
 			return;
