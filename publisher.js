@@ -53,6 +53,12 @@ module.exports = {
 		});
 	},
 
+	parseTags: function(twist, callback) {
+		parseTags(twist, function(result) {
+			callback(result);
+		});
+	},
+
 	shorten: function(twist, callback) {
 		callShortener(twist, function(result) {
 			callback(result);
@@ -158,6 +164,45 @@ function callCleaner(twist, callback) {
 	callback({
 		provider: 'cleaner',
 		urlCleaned: twist.url
+	});
+}
+
+// Private: Parse #TAG
+function parseTags(twist, callback) {
+	var tags = [];
+
+	// Look for #
+	var text = twist.text;
+	if (text) {
+		var i = text.indexOf('#');
+		while (i != -1 && i < text.length) {
+			// Get all characters after tag
+			var tag = '';
+			var char;
+			i++;
+			while (i < text.length && (
+				((char = text[i]) == '_') ||
+				(char >= 'A' && char <= 'Z') ||
+				(char >= 'a' && char <= 'z')
+			)) {
+				tag += char;
+				i++;
+			}
+			if (tag.length >= 1) {
+				tags.push(tag.toLowerCase());
+			}
+
+			// Pass to next instance of #
+			if (i < text.length) {
+				i = text.indexOf('#', i);
+			}
+		}
+	}
+
+	// Return tags list
+	callback({
+		provider: 'tagparser',
+		tags: tags
 	});
 }
 

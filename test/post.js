@@ -115,13 +115,17 @@ describe('init post', function() {
 							assert.notEqual(res.value, undefined);
 							newTwistId = post._id;
 							assert.equal(post.url, encodeURI('http://lespot-bouygues.com'));
-							assert.equal(post.text, 'Hello');
+							assert.equal(post.text, 'Hello #Bouygues!');
+							assert.notEqual(post.tags, null);
+							assert.notEqual(post.tags, undefined);
+							assert.equal(post.tags.length, 1);
+							assert.equal(post.tags[0], "bouygues");
 							assert.notEqual(undefined, post._id);
 							assert.equal((Date.now()-post.createdOn.getTime())<1000, true);
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID, text: 'Hello'}}, res);
+						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID, text: 'Hello #Bouygues!'}}, res);
 					});
 
 					it('should add a new twist', function(done) {
@@ -163,7 +167,11 @@ describe('init post', function() {
 							assert.notEqual(undefined, post);
 							assert.notEqual(null, post);
 							assert.equal(post.url, encodeURI('http://lespot-bouygues.com'));
-							assert.equal(post.text, 'Hello');
+							assert.equal(post.text, 'Hello #Bouygues!');
+							assert.notEqual(post.tags, null);
+							assert.notEqual(post.tags, undefined);
+							assert.equal(post.tags.length, 1);
+							assert.equal(post.tags[0], "bouygues");
 							assert.equal((Date.now()-post.updatedOn.getTime())<1000, true);
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
@@ -179,6 +187,9 @@ describe('init post', function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
 							assert.equal('Bye', post.text);
+							assert.notEqual(post.tags, null);
+							assert.notEqual(post.tags, undefined);
+							assert.equal(post.tags.length, 0);
 							assert.notEqual(post.createdOn, post.updatedOn);
 							done();
 						}
@@ -196,6 +207,9 @@ describe('init post', function() {
 							assert.notEqual(null, post);
 							assert.equal(post.url, encodeURI('http://lespot-bouygues.com'));
 							assert.equal(post.text, 'Bye');
+							assert.notEqual(post.tags, null);
+							assert.notEqual(post.tags, undefined);
+							assert.equal(post.tags.length, 0);
 							assert.equal((Date.now()-post.updatedOn.getTime())<1000, true);
 							assert.notEqual(post.createdOn, post.updatedOn);
 							done();

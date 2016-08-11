@@ -29,6 +29,8 @@ module.exports = {
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
+
+		// Set twist property values
 		post.uid = params.uid;
 		post.url = params.url;
 		if (params.text) {
@@ -41,25 +43,28 @@ module.exports = {
 			post.clean = params.clean;
 		}
 		post.createdOn = post.updatedOn = new Date(Date.now());
+		publisher.parseTags(post, function(result) {
+			post.tags = result.tags;
 
-		// Create the new twist
-		db.collection(postsCollection, function (err, collection) {
-			collection.insert(post, {safe:true}, function(err, result) {
-				if (err) {
-					res.send({'error':'An error has occurred creating post'});
-				} else {
-					// Publish if need
-					if (post.published) {
-						publisher.publish(result.ops[0], function(execres) {
-							result.ops[0].publishResult = execres;
-							res.send(result.ops[0]);
-						});
-						return;
+			// Create the new twist
+			db.collection(postsCollection, function (err, collection) {
+				collection.insert(post, {safe:true}, function(err, result) {
+					if (err) {
+						res.send({'error':'An error has occurred creating post'});
+					} else {
+						// Publish if need
+						if (post.published) {
+							publisher.publish(result.ops[0], function(execres) {
+								result.ops[0].publishResult = execres;
+								res.send(result.ops[0]);
+							});
+							return;
+						}
+
+						// Else just send object
+						res.send(result.ops[0]);
 					}
-
-					// Else just send object
-					res.send(result.ops[0]);
-				}
+				});
 			});
 		});
 	},
@@ -71,6 +76,8 @@ module.exports = {
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
+
+		// Update twist property values
 		var post = {};
 		post.uid = params.uid;
 		if (params.url) {
@@ -86,25 +93,28 @@ module.exports = {
 			post.clean = params.clean;
 		}
 		post.updatedOn = new Date(Date.now());
+		publisher.parseTags(post, function(result) {
+			post.tags = result.tags;
 
-		// Update the Twist
-		db.collection(postsCollection, function(err, collection) {
-			collection.update({'_id':new mongo.ObjectID(params._id)}, {$set: post}, {safe:true}, function(err, result) {
-				if (err) {
-					res.send({'error':'An error has occurred'});
-				} else {
-					// Publish if need
-					if (post.published) {
-						publisher.publish(post, function(execres) {
-							post.publishResult = execres;
-							res.send(post);
-						});
-						return;
+			// Update the Twist
+			db.collection(postsCollection, function(err, collection) {
+				collection.update({'_id':new mongo.ObjectID(params._id)}, {$set: post}, {safe:true}, function(err, result) {
+					if (err) {
+						res.send({'error':'An error has occurred'});
+					} else {
+						// Publish if need
+						if (post.published) {
+							publisher.publish(post, function(execres) {
+								post.publishResult = execres;
+								res.send(post);
+							});
+							return;
+						}
+
+						// Else just send object
+						res.send(post);
 					}
-
-					// Else just send object
-					res.send(post);
-				}
+				});
 			});
 		});
 	},

@@ -43,6 +43,56 @@ describe('init publisher', function() {
 					});
 				});
 
+				describe('#parseTags', function() {
+					it('no tags in null text', function(done) {
+						publisher.parseTags({}, function(result) {
+							assert.notEqual(null, result.tags);
+							assert.equal(0, result.tags.length);
+							done();
+						});
+					});
+
+					it('no tags in empty text', function(done) {
+						publisher.parseTags({text: ''}, function(result) {
+							assert.notEqual(null, result.tags);
+							assert.equal(0, result.tags.length);
+							done();
+						});
+					});
+
+					it('no tags in text without tags', function(done) {
+						publisher.parseTags({text: 'Hey, this is a text with no tag inside!'}, function(result) {
+							assert.notEqual(null, result.tags);
+							assert.equal(0, result.tags.length);
+							done();
+						});
+					});
+
+					it('identify tags in text', function(done) {
+						publisher.parseTags({text: 'Hey, this is an #microsoft system inside but #Android #ios is nice too.'}, function(result) {
+							assert.notEqual(null, result.tags);
+							assert.equal(3, result.tags.length);
+							assert.equal("microsoft", result.tags[0]);
+							assert.equal("android", result.tags[1]);
+							assert.equal("ios", result.tags[2]);
+							done();
+						});
+					});
+
+					it('identify special case tags in text', function(done) {
+						publisher.parseTags({text: '#bEGin # #: #o #one#two #1 #three'}, function(result) {
+							assert.notEqual(null, result.tags);
+							assert.equal(5, result.tags.length);
+							assert.equal("begin", result.tags[0]);
+							assert.equal("o", result.tags[1]);
+							assert.equal("one", result.tags[2]);
+							assert.equal("two", result.tags[3]);
+							assert.equal("three", result.tags[4]);
+							done();
+						});
+					});
+				});
+
 				this.timeout(8000);
 
 				describe('#getMetadata', function() {
