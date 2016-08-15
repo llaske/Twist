@@ -180,23 +180,38 @@ describe('init post', function() {
 					});
 				});
 
+				describe('#findTags()', function() {
+					it('should retrieve all existing tags', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(res.value.length, 1);
+							assert.equal(res.value[0], 'bouygues');
+							done();
+						}
+						posts.findTags({body: {uid:testUserUID}}, res);
+					});
+				});
+
 				describe('#update()', function() {
 					it('should be updated', function(done) {
 						res.done = function() {
 							var post = res.value;
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal('Bye', post.text);
+							assert.equal('Bye #Microsoft, welcome #macOS', post.text);
 							assert.notEqual(post.tags, null);
 							assert.notEqual(post.tags, undefined);
-							assert.equal(post.tags.length, 0);
+							assert.equal(post.tags.length, 2);
+							assert.equal(post.tags[0], 'microsoft');
+							assert.equal(post.tags[1], 'macos');
 							assert.notEqual(post.createdOn, post.updatedOn);
 							done();
 						}
 						var update = {};
 						update.uid = testUserUID;
 						update._id = newTwistId;
-						update.text = 'Bye';
+						update.text = 'Bye #Microsoft, welcome #macOS';
 						posts.update({body: update}, res);
 					});
 
@@ -206,15 +221,29 @@ describe('init post', function() {
 							assert.notEqual(undefined, post);
 							assert.notEqual(null, post);
 							assert.equal(post.url, encodeURI('http://lespot-bouygues.com'));
-							assert.equal(post.text, 'Bye');
+							assert.equal(post.text, 'Bye #Microsoft, welcome #macOS');
 							assert.notEqual(post.tags, null);
 							assert.notEqual(post.tags, undefined);
-							assert.equal(post.tags.length, 0);
+							assert.equal(post.tags.length, 2);
+							assert.equal(post.tags[0], 'microsoft');
+							assert.equal(post.tags[1], 'macos');
 							assert.equal((Date.now()-post.updatedOn.getTime())<1000, true);
 							assert.notEqual(post.createdOn, post.updatedOn);
 							done();
 						}
 						posts.findById({body: {uid:testUserUID, _id:newTwistId}}, res);
+					});
+
+					it('should update existing tags', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(res.value.length, 2);
+							assert.equal(res.value[0], 'macos');
+							assert.equal(res.value[1], 'microsoft');
+							done();
+						}
+						posts.findTags({body: {uid:testUserUID}}, res);
 					});
 				});
 
@@ -264,15 +293,31 @@ describe('init post', function() {
 							var post = res.value;
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(post.text, undefined);
+							assert.equal(post.text, 'LMI #microsoft');
 							assert.equal(post.url, encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'));
 							assert.notEqual(undefined, post._id);
 							metadataTwistId = post._id;
+							assert.notEqual(post.tags, null);
+							assert.notEqual(post.tags, undefined);
+							assert.equal(post.tags.length, 1);
+							assert.equal(post.tags[0], 'microsoft');
 							assert.equal((Date.now()-post.createdOn.getTime())<1000, true);
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.create({body: {url:encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'),uid:testUserUID}}, res);
+						posts.create({body: {url:encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'), text: 'LMI #microsoft', uid:testUserUID}}, res);
+					});
+
+					it('should update existing tags', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(res.value.length, 2);
+							assert.equal(res.value[0], 'macos');
+							assert.equal(res.value[1], 'microsoft');
+							done();
+						}
+						posts.findTags({body: {uid:testUserUID}}, res);
 					});
 
 					it('should do nothing without uid and id', function(done) {
@@ -418,6 +463,16 @@ describe('init post', function() {
 							done();
 						}
 						posts.findAll({body: {uid: testUserUID}}, res);
+					});
+
+					it('should update existing tags', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(res.value.length, 0);
+							done();
+						}
+						posts.findTags({body: {uid:testUserUID}}, res);
 					});
 				});
 			});

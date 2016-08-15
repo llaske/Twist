@@ -173,6 +173,39 @@ module.exports = {
 		});
 	},
 
+	findTags: function(req, res) {
+		// Limit to an user
+		var uid;
+		if (req.body && req.body.uid) {
+			if (!mongo.ObjectID.isValid(req.body.uid)) {
+				res.send([]);
+				return;
+			}
+			uid = req.body.uid;
+		}
+
+		// Retrieve all tags of Twists
+		var aggregate = [{'$match': {'uid': uid}}, {'$project': {'tags': 1, '_id': 0}}];
+		db.collection(postsCollection, function(err, collection) {
+			collection.aggregate(aggregate).toArray(function(err, items) {
+				// Build a set of tags (unique)
+				var tags = [];
+				for(var i = 0 ; i < items.length ; i++) {
+					var itemTags = items[i].tags;
+					for (var j = 0 ; j < itemTags.length ; j++) {
+						if(tags.indexOf(itemTags[j]) == -1) {
+							tags.push(itemTags[j]);
+						}
+					}
+				}
+
+				// Sort by name and send it
+				tags.sort();
+				res.send(tags);
+			});
+		});
+	},
+
 	short: function(req, res) {
 		// Get post
 		getPost(req.body, function(twist) {
