@@ -36,6 +36,9 @@ module.exports = {
 		if (params.text) {
 			post.text = params.text;
 		}
+		if (params.author) {
+			post.author = params.author;
+		}
 		if (params.published) {
 			post.published = params.published;
 		}
@@ -85,6 +88,9 @@ module.exports = {
 		}
 		if (params.text) {
 			post.text = params.text;
+		}
+		if (params.author) {
+			post.author = params.author;
 		}
 		if (params.published) {
 			post.published = params.published;

@@ -116,6 +116,7 @@ describe('init post', function() {
 							newTwistId = post._id;
 							assert.equal(post.url, encodeURI('http://lespot-bouygues.com'));
 							assert.equal(post.text, 'Hello #Bouygues!');
+							assert.equal(post.author, '@lionellaske');
 							assert.notEqual(post.tags, null);
 							assert.notEqual(post.tags, undefined);
 							assert.equal(post.tags.length, 1);
@@ -125,7 +126,7 @@ describe('init post', function() {
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID, text: 'Hello #Bouygues!'}}, res);
+						posts.create({body: {url:encodeURI('http://lespot-bouygues.com'),uid:testUserUID, text: 'Hello #Bouygues!', author: '@lionellaske'}}, res);
 					});
 
 					it('should add a new twist', function(done) {
@@ -200,6 +201,7 @@ describe('init post', function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
 							assert.equal('Bye #Microsoft, welcome #macOS', post.text);
+							assert.equal(post.author, '@c2s_bouygues');
 							assert.notEqual(post.tags, null);
 							assert.notEqual(post.tags, undefined);
 							assert.equal(post.tags.length, 2);
@@ -212,6 +214,7 @@ describe('init post', function() {
 						update.uid = testUserUID;
 						update._id = newTwistId;
 						update.text = 'Bye #Microsoft, welcome #macOS';
+						update.author = '@c2s_bouygues';
 						posts.update({body: update}, res);
 					});
 
