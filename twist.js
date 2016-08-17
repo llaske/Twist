@@ -44,11 +44,12 @@ settings.load(function(ini) {
 	app.post('/api/twist', post.create);
 	app.put('/api/twist', post.update);
 	app.delete('/api/twist', post.delete);
+	app.get('/api/twist', post.findAll);
 	app.get('/api/twist/:id', post.findById);
 	app.get('/api/twist/:id/short', post.short);
 	app.get('/api/twist/:id/metadata', post.metadata);
 	app.get('/api/twist/:id/images', post.images);
-	app.get('/api/tags', post.findTags);
+	app.get('/api/tag', post.findTags);
 
 	// Start listening
 	app.listen(ini.web.port);

@@ -50,7 +50,7 @@ describe('init post', function() {
 							initUserCount = res.value.length;
 							done();
 						}
-						posts.findAll({body: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}}, res);
 					});
 				});
 
@@ -72,7 +72,7 @@ describe('init post', function() {
 							assert.equal(initUserCount, this.value.length);
 							done();
 						}
-						posts.findAll({body: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}}, res);
 					});
 				});
 
@@ -146,7 +146,7 @@ describe('init post', function() {
 							assert.equal(initUserCount+1, res.value.length);
 							done();
 						}
-						posts.findAll({body: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}}, res);
 					});
 				});
 
@@ -156,7 +156,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.findById({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+						posts.findById({headers: {uid:testUserUID}, query: {id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should retrieve fields value', function(done) {
@@ -177,7 +177,7 @@ describe('init post', function() {
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.findById({body: {uid:testUserUID, _id:newTwistId}}, res);
+						posts.findById({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
 					});
 				});
 
@@ -186,11 +186,15 @@ describe('init post', function() {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(res.value.length, 1);
-							assert.equal(res.value[0], 'bouygues');
+							assert.equal(true, res.value.length >= 1);
+							var found = false;
+							for (var i = 0 ; !found && i < res.value.length ; i++) {
+								found = (res.value[i] == 'bouygues');
+							}
+							assert.equal(true, found);
 							done();
 						}
-						posts.findTags({body: {uid:testUserUID}}, res);
+						posts.findTags({headers: {uid:testUserUID}}, res);
 					});
 				});
 
@@ -234,19 +238,25 @@ describe('init post', function() {
 							assert.notEqual(post.createdOn, post.updatedOn);
 							done();
 						}
-						posts.findById({body: {uid:testUserUID, _id:newTwistId}}, res);
+						posts.findById({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
 					});
 
 					it('should update existing tags', function(done) {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(res.value.length, 2);
-							assert.equal(res.value[0], 'macos');
-							assert.equal(res.value[1], 'microsoft');
+							assert.equal(true, res.value.length >= 2);
+							var foundMacOS = false;
+							var foundMicrosoft = false;
+							for (var i = 0 ; i < res.value.length ; i++) {
+								if (res.value[i] == 'macos') foundMacOS = true;
+								if (res.value[i] == 'microsoft') foundMicrosoft = true;
+							}
+							assert.equal(true, foundMacOS);
+							assert.equal(true, foundMicrosoft);
 							done();
 						}
-						posts.findTags({body: {uid:testUserUID}}, res);
+						posts.findTags({headers: {uid:testUserUID}}, res);
 					});
 				});
 
@@ -258,7 +268,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.short({body: {}}, res);
+						posts.short({headers: {}}, res);
 					});
 
 					it('should do nothing without id', function(done) {
@@ -266,7 +276,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.short({body: {uid:testUserUID}}, res);
+						posts.short({headers: {uid:testUserUID}}, res);
 					});
 
 					it('should do nothing with an invalid id', function(done) {
@@ -274,7 +284,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.short({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+						posts.short({headers: {uid:testUserUID}, query: {id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should call shortener', function(done) {
@@ -284,7 +294,7 @@ describe('init post', function() {
 							assert.equal("http://bit.ly/11vmmy1", res.value.urlShortened);
 							done();
 						}
-						posts.short({body: {uid:testUserUID, _id:newTwistId}}, res);
+						posts.short({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
 					});
 				});
 
@@ -315,12 +325,18 @@ describe('init post', function() {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(res.value.length, 2);
-							assert.equal(res.value[0], 'macos');
-							assert.equal(res.value[1], 'microsoft');
+							assert.equal(true, res.value.length >= 2);
+							var foundMacOS = false;
+							var foundMicrosoft = false;
+							for (var i = 0 ; i < res.value.length ; i++) {
+								if (res.value[i] == 'macos') foundMacOS = true;
+								if (res.value[i] == 'microsoft') foundMicrosoft = true;
+							}
+							assert.equal(true, foundMacOS);
+							assert.equal(true, foundMicrosoft);
 							done();
 						}
-						posts.findTags({body: {uid:testUserUID}}, res);
+						posts.findTags({headers: {uid:testUserUID}}, res);
 					});
 
 					it('should do nothing without uid and id', function(done) {
@@ -328,7 +344,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.metadata({body: {}}, res);
+						posts.metadata({headers: {}}, res);
 					});
 
 					it('should do nothing without id', function(done) {
@@ -336,7 +352,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.metadata({body: {uid:testUserUID}}, res);
+						posts.metadata({headers: {uid:testUserUID}}, res);
 					});
 
 					it('should do nothing with an invalid id', function(done) {
@@ -344,7 +360,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.metadata({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+						posts.metadata({headers: {uid:testUserUID}, query:{id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should get metadata', function(done) {
@@ -357,7 +373,7 @@ describe('init post', function() {
 							assert.equal("L'exploitation d'une faille dans The DAO, organisation autonome d�centralis�e bas�e sur la blockchain d'Ethereum, a permis � un utilisateur de subtili...", res.value.metadata.description);
 							done();
 						}
-						posts.metadata({body: {uid:testUserUID, _id:metadataTwistId}}, res);
+						posts.metadata({headers: {uid:testUserUID}, query:{id:metadataTwistId}}, res);
 					});
 				});
 
@@ -367,7 +383,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.images({body: {}}, res);
+						posts.images({headers: {}}, res);
 					});
 
 					it('should do nothing without id', function(done) {
@@ -375,7 +391,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.images({body: {uid:testUserUID}}, res);
+						posts.images({headers: {uid:testUserUID}}, res);
 					});
 
 					it('should do nothing with an invalid id', function(done) {
@@ -383,7 +399,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.images({body: {uid:testUserUID, _id:'ffffffffffffffffffffffff'}}, res);
+						posts.images({headers: {uid:testUserUID}, query: {id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should get images from LeSpot', function(done) {
@@ -393,7 +409,7 @@ describe('init post', function() {
 							assert.equal(true, res.value.images.length > 1);
 							done();
 						}
-						posts.images({body: {uid:testUserUID, _id:newTwistId}}, res);
+						posts.images({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
 					});
 
 					it('should get images from LMI', function(done) {
@@ -403,7 +419,7 @@ describe('init post', function() {
 							assert.equal(true, res.value.images.length > 1);
 							done();
 						}
-						posts.images({body: {uid:testUserUID, _id:metadataTwistId}}, res);
+						posts.images({headers: {uid:testUserUID}, query: {id:metadataTwistId}}, res);
 					});
 				});
 
@@ -415,7 +431,7 @@ describe('init post', function() {
 							assert.notEqual(undefined, res.value.error);
 							done();
 						}
-						posts.delete({body: {}}, res);
+						posts.delete({headers: {}}, res);
 					});
 
 					it('should do nothing without id', function(done) {
@@ -425,7 +441,7 @@ describe('init post', function() {
 							assert.notEqual(undefined, res.value.error);
 							done();
 						}
-						posts.delete({body: {uid:testUserUID}}, res);
+						posts.delete({headers: {uid:testUserUID}}, res);
 					});
 
 					it('should delete one', function(done) {
@@ -435,7 +451,7 @@ describe('init post', function() {
 							assert.equal(newTwistId, res.value._id);
 							done();
 						}
-						posts.delete({body: {uid:testUserUID, _id:newTwistId}}, res);
+						posts.delete({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
 					});
 
 					it('should delete two', function(done) {
@@ -445,7 +461,7 @@ describe('init post', function() {
 							assert.equal(metadataTwistId, res.value._id);
 							done();
 						}
-						posts.delete({body: {uid:testUserUID, _id:metadataTwistId}}, res);
+						posts.delete({headers: {uid:testUserUID}, query: {id:metadataTwistId}}, res);
 					});
 
 					it('should retrieve init count', function(done) {
@@ -465,7 +481,7 @@ describe('init post', function() {
 							assert.equal(initUserCount, res.value.length);
 							done();
 						}
-						posts.findAll({body: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}}, res);
 					});
 
 					it('should update existing tags', function(done) {
@@ -475,7 +491,7 @@ describe('init post', function() {
 							assert.equal(res.value.length, 0);
 							done();
 						}
-						posts.findTags({body: {uid:testUserUID}}, res);
+						posts.findTags({headers: {uid:testUserUID}}, res);
 					});
 				});
 			});

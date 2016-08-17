@@ -126,14 +126,14 @@ module.exports = {
 	},
 
 	delete: function(req, res) {
-		// check params
-		var params = req.body;
-		if (!params) {
+		// Check params
+		var params = req;
+		if (!params || !params.headers || !params.query) {
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
-		var uid = params.uid;
-		var id = params._id;
+		var uid = params.headers['uid'];
+		var id = params.query.id;
 		if (!uid || !mongo.ObjectID.isValid(uid)) {
 			res.send({'error': 'Invalid arguments'});
 			return;
@@ -156,12 +156,13 @@ module.exports = {
 	findAll: function(req, res) {
 		// Limit to an user
 		var query = {};
-		if (req.body && req.body.uid) {
-			if (!mongo.ObjectID.isValid(req.body.uid)) {
-				res.send();
+		var uid;
+		if (req.headers && (uid = req.headers['uid'])) {
+			if (!mongo.ObjectID.isValid(uid)) {
+				res.send([]);
 				return;
 			}
-			query.uid = req.body.uid;
+			query.uid = uid;
 		}
 
 		// Retrieve all twists
@@ -174,7 +175,7 @@ module.exports = {
 
 	findById: function(req, res) {
 		// Get post
-		getPost(req.body, function(item) {
+		getPost(req, function(item) {
 			res.send(item);
 		});
 	},
@@ -182,12 +183,11 @@ module.exports = {
 	findTags: function(req, res) {
 		// Limit to an user
 		var uid;
-		if (req.body && req.body.uid) {
-			if (!mongo.ObjectID.isValid(req.body.uid)) {
+		if (req.headers && (uid = req.headers['uid'])) {
+			if (!mongo.ObjectID.isValid(uid)) {
 				res.send([]);
 				return;
 			}
-			uid = req.body.uid;
 		}
 
 		// Retrieve all tags of Twists
@@ -214,7 +214,7 @@ module.exports = {
 
 	short: function(req, res) {
 		// Get post
-		getPost(req.body, function(twist) {
+		getPost(req, function(twist) {
 			// Invalid twist
 			if (!twist) {
 				res.send();
@@ -230,7 +230,7 @@ module.exports = {
 
 	metadata: function(req, res) {
 		// Get post
-		getPost(req.body, function(twist) {
+		getPost(req, function(twist) {
 			// Invalid twist
 			if (!twist) {
 				res.send();
@@ -246,7 +246,7 @@ module.exports = {
 
 	images: function(req, res) {
 		// Get post
-		getPost(req.body, function(twist) {
+		getPost(req, function(twist) {
 			// Invalid twist
 			if (!twist) {
 				res.send();
@@ -264,12 +264,12 @@ module.exports = {
 // Private: get a twist
 function getPost(params, callback) {
 	// Get params
-	if (!params) {
+	if (!params || !params.headers || !params.query) {
 		callback();
 		return;
 	}
-	var uid = params.uid;
-	var id = params._id;
+	var uid = params.headers['uid'];
+	var id = params.query.id;
 
 	// Limit to an user
 	var query = {};
