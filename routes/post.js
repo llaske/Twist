@@ -21,7 +21,7 @@ module.exports = {
 		});
 	},
 
-	create:  function(req, res) {
+	create: function(req, res) {
 		// Check params
 		var params = req.body;
 		var post = {};
@@ -40,35 +40,29 @@ module.exports = {
 			post.author = params.author;
 		}
 		if (params.published) {
-			post.published = params.published;
+			post.published = (params.published == "true");
 		}
-		if (params.clean) {
-			post.clean = params.clean;
+		if (params.cleaned) {
+			post.cleaned = (params.cleaned == "true");
 		}
 		post.createdOn = post.updatedOn = new Date(Date.now());
 		publisher.parseTags(post, function(result) {
 			post.tags = result.tags;
 
-			// Create the new twist
-			db.collection(postsCollection, function (err, collection) {
-				collection.insert(post, {safe:true}, function(err, result) {
-					if (err) {
-						res.send({'error':'An error has occurred creating post'});
-					} else {
-						// Publish if need
-						if (post.published) {
-							publisher.publish(result.ops[0], function(execres) {
-								result.ops[0].publishResult = execres;
-								res.send(result.ops[0]);
-							});
-							return;
-						}
-
-						// Else just send object
-						res.send(result.ops[0]);
+			// Clean if need
+			if (post.cleaned) {
+				publisher.clean(post, function(result) {
+					if (result && result.urlCleaned) {
+						post.url = result.urlCleaned;
 					}
+					createTwist(post, res);
 				});
-			});
+			}
+
+			// Create the Twist
+			else {
+				createTwist(post, res);
+			}
 		});
 	},
 
@@ -83,9 +77,6 @@ module.exports = {
 		// Update twist property values
 		var post = {};
 		post.uid = params.uid;
-		if (params.url) {
-			post.url = params.url;
-		}
 		if (params.text) {
 			post.text = params.text;
 		}
@@ -93,11 +84,9 @@ module.exports = {
 			post.author = params.author;
 		}
 		if (params.published) {
-			post.published = params.published;
+			post.published = (params.published == "true");
 		}
-		if (params.clean) {
-			post.clean = params.clean;
-		}
+		// TODO: Add shortURL and image
 		post.updatedOn = new Date(Date.now());
 		publisher.parseTags(post, function(result) {
 			post.tags = result.tags;
@@ -128,12 +117,12 @@ module.exports = {
 	delete: function(req, res) {
 		// Check params
 		var params = req;
-		if (!params || !params.headers || !params.query) {
+		if (!params || !params.headers || !params.params) {
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
 		var uid = params.headers['uid'];
-		var id = params.query.id;
+		var id = params.params.id;
 		if (!uid || !mongo.ObjectID.isValid(uid)) {
 			res.send({'error': 'Invalid arguments'});
 			return;
@@ -264,12 +253,12 @@ module.exports = {
 // Private: get a twist
 function getPost(params, callback) {
 	// Get params
-	if (!params || !params.headers || !params.query) {
+	if (!params || !params.headers || !params.params) {
 		callback();
 		return;
 	}
 	var uid = params.headers['uid'];
-	var id = params.query.id;
+	var id = params.params.id;
 
 	// Limit to an user
 	var query = {};
@@ -284,12 +273,36 @@ function getPost(params, callback) {
 		callback();
 		return;
 	}
-	query._id = id;
+	query._id = new mongo.ObjectID(id);
 
 	// Retrieve twist matching
 	db.collection(postsCollection, function(err, collection) {
 		collection.findOne(query, function(err, item) {
 			callback(item);
+		});
+	});
+}
+
+// Privte: Create a twist
+function createTwist(post, res) {
+	// Create the new twist
+	db.collection(postsCollection, function (err, collection) {
+		collection.insert(post, {safe:true}, function(err, result) {
+			if (err) {
+				res.send({'error':'An error has occurred creating post'});
+			} else {
+				// Publish if need
+				if (post.published) {
+					publisher.publish(result.ops[0], function(execres) {
+						result.ops[0].publishResult = execres;
+						res.send(result.ops[0]);
+					});
+					return;
+				}
+
+				// Else just send object
+				res.send(result.ops[0]);
+			}
 		});
 	});
 }

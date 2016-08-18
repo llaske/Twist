@@ -36,6 +36,7 @@ module.exports = kind({
 		token: null
 	},
 
+	// Constructor
 	create: function() {
 		this.inherited(arguments);
 
@@ -49,23 +50,19 @@ module.exports = kind({
 
 		Spotlight.initialize(this);
 
-		this.initialized = false;
+		this.twist = null;
 	},
 
+	// First rendering, initialize
 	rendered: function() {
 		this.inherited(arguments);
 
 		// Initialize
-		if (!this.initialized) {
-			this.initialized = true;
-			this.$.url.focus();
-			this.callMethod('getTags');
-			/*if (this.$.url.getValue()) {
-				this.callMethod('createTwist');
-			}*/
-		}
+		this.$.url.focus();
+		this.callMethod('getTags');
 	},
 
+	// Focus changed, adapt field decoration
 	focused: function(ctrl) {
 		this.$.urlDecorator.removeClass('twist-focused');
 		this.$.textDecorator.removeClass('twist-focused');
@@ -73,6 +70,7 @@ module.exports = kind({
 		ctrl.parent.addClass('twist-focused');
 	},
 
+	// Twist button tapped, publish the Twist
 	twistButtonTapped: function() {
 		this.$.urlDecorator.removeClass('twist-focused');
 		this.$.textDecorator.removeClass('twist-focused');
@@ -80,17 +78,24 @@ module.exports = kind({
 		this.publishTwist();
 	},
 
+	// Update character count for the twist
 	updateCount: function() {
+		var urlLength = this.$.url.getValue().length;
 		var textRaw = this.$.text.getRawtext();
 		var textLength = textRaw.length;
-		var count = this.$.url.getValue().length+textLength;
+		var authorLength = this.$.author.getValue().length;
+		var count = urlLength+textLength+authorLength;
 		if (textLength > 1) {
-			count++;
+			count++; // Whitespace
+		}
+		if (authorLength > 1) {
+			count+=3; // Whitespace + ( + )
 		}
 		this.$.count.setContent(count);
 		return count;
 	},
 
+	// Call an API on the server but first ensure that the token is valid
 	callMethod: function(methodName) {
 		var that = this;
 		var method = util.bindSafely(this, methodName);
@@ -98,16 +103,18 @@ module.exports = kind({
 			// Check token first
 			that.token = token;
 			if (!that.token) {
+				// Invalid, open auth dialog first
 				that.$.authDialog.setThen(method);
 				that.$.authDialog.show();
 				return;
 			}
 
-			// Call method directly
+			// Token is valid, call method directly
 			method.call(that);
 		});
 	},
 
+	// Retrieve all existing tags
 	getTags: function() {
 		var ajax = new Ajax({
 			url: "http://localhost:8081/api/tag",
@@ -128,42 +135,70 @@ module.exports = kind({
 		ajax.go();
 	},
 
+	// Create the Twist in database (without publishing it first)
 	createTwist: function() {
-		console.log("Create/Update Twist URL");
+		var ajax = new Ajax({
+			url: "http://localhost:8081/api/twist",
+			method: "POST",
+			handleAs: "json",
+			postBody: {
+				uid: this.token.uid,
+				url: encodeURI(this.$.url.getValue()),
+				text: this.$.text.getValue(),
+				author: this.$.author.getValue(),
+				cleaned: true,
+				published: false
+			}
+		});
+		ajax.headers = {
+			"x-key": this.token.username,
+			"x-access-token": this.token.token,
+			"uid": this.token.uid,
+			"data-method": "createTwist"
+		};
+		var that = this;
+		ajax.response(function(sender, response) {
+			// Store cleaned URL
+			that.twist = response;
+			that.$.url.setValue(that.twist.url);
+
+			// Shorten URL
+			that.shortenURL();
+		});
+		ajax.error(util.bindSafely(this, 'apiCallFail'));
+		ajax.go();
 	},
 
+	// Shorten URL of the twist
+	shortenURL: function() {
+		var ajax = new Ajax({
+			url: "http://localhost:8081/api/twist/"+this.twist._id+"/short",
+			method: "GET",
+			handleAs: "json"
+		});
+		ajax.headers = {
+			"x-key": this.token.username,
+			"x-access-token": this.token.token,
+			"uid": this.token.uid,
+			"data-method": "shortenURL"
+		};
+		var that = this;
+		ajax.response(function(sender, response) {
+			if (response.urlShortened) {
+				that.twist.urlShortened = response.urlShortened;
+				that.$.url.setValue(that.twist.urlShortened);
+			}
+		});
+		ajax.error(util.bindSafely(this, 'apiCallFail'));
+		ajax.go();
+	},
+
+	// Publish the Twist
 	publishTwist: function() {
 		console.log('Publish the Twist !');
-		/*var that = this;
-		Storage.getValue("token", function(token) {
-			if (!token) {
-				that.$.authDialog.show();
-				return;
-			}
-			var ajax = new Ajax({
-				url: "http://localhost:8081/api/twist",
-				method: "POST",
-				handleAs: "json",
-				postBody: {
-					uid: token.uid,
-					url: encodeURI(that.$.url.getValue()),
-					text: that.$.text.getValue(),
-					clean: true,
-					published: true
-				}
-			});
-			ajax.headers = {"x-key":token.username, "x-access-token":token.token};
-			ajax.response(util.bindSafely(that, 'apiCallResponse'));
-			ajax.error(util.bindSafely(that, 'apiCallFail'));
-			ajax.go();
-		});*/
 	},
 
-	/*apiCallResponse: function(inSender, inResponse) {
-		this.$.url.setValue('');
-		this.$.text.setValue(''); // TODO: A reinit is probably better
-	},*/
-
+	// API error handler: if auth error, open the dialog then relaunch the command
 	apiCallFail: function(inSender, inError) {
 		if (inError == 401) {
 			this.$.authDialog.setThen(util.bindSafely(this, inSender.headers["data-method"]));

@@ -156,7 +156,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.findById({headers: {uid:testUserUID}, query: {id:'ffffffffffffffffffffffff'}}, res);
+						posts.findById({headers: {uid:testUserUID}, params: {id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should retrieve fields value', function(done) {
@@ -177,7 +177,7 @@ describe('init post', function() {
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.findById({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
+						posts.findById({headers: {uid:testUserUID}, params: {id:newTwistId}}, res);
 					});
 				});
 
@@ -238,7 +238,7 @@ describe('init post', function() {
 							assert.notEqual(post.createdOn, post.updatedOn);
 							done();
 						}
-						posts.findById({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
+						posts.findById({headers: {uid:testUserUID}, params: {id:newTwistId}}, res);
 					});
 
 					it('should update existing tags', function(done) {
@@ -284,7 +284,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.short({headers: {uid:testUserUID}, query: {id:'ffffffffffffffffffffffff'}}, res);
+						posts.short({headers: {uid:testUserUID}, params: {id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should call shortener', function(done) {
@@ -294,7 +294,7 @@ describe('init post', function() {
 							assert.equal("http://bit.ly/11vmmy1", res.value.urlShortened);
 							done();
 						}
-						posts.short({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
+						posts.short({headers: {uid:testUserUID}, params: {id:newTwistId}}, res);
 					});
 				});
 
@@ -360,7 +360,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.metadata({headers: {uid:testUserUID}, query:{id:'ffffffffffffffffffffffff'}}, res);
+						posts.metadata({headers: {uid:testUserUID}, params:{id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should get metadata', function(done) {
@@ -373,7 +373,7 @@ describe('init post', function() {
 							assert.equal("L'exploitation d'une faille dans The DAO, organisation autonome d�centralis�e bas�e sur la blockchain d'Ethereum, a permis � un utilisateur de subtili...", res.value.metadata.description);
 							done();
 						}
-						posts.metadata({headers: {uid:testUserUID}, query:{id:metadataTwistId}}, res);
+						posts.metadata({headers: {uid:testUserUID}, params:{id:metadataTwistId}}, res);
 					});
 				});
 
@@ -399,7 +399,7 @@ describe('init post', function() {
 							assert.equal(undefined, res.value);
 							done();
 						}
-						posts.images({headers: {uid:testUserUID}, query: {id:'ffffffffffffffffffffffff'}}, res);
+						posts.images({headers: {uid:testUserUID}, params: {id:'ffffffffffffffffffffffff'}}, res);
 					});
 
 					it('should get images from LeSpot', function(done) {
@@ -409,7 +409,7 @@ describe('init post', function() {
 							assert.equal(true, res.value.images.length > 1);
 							done();
 						}
-						posts.images({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
+						posts.images({headers: {uid:testUserUID}, params: {id:newTwistId}}, res);
 					});
 
 					it('should get images from LMI', function(done) {
@@ -419,7 +419,7 @@ describe('init post', function() {
 							assert.equal(true, res.value.images.length > 1);
 							done();
 						}
-						posts.images({headers: {uid:testUserUID}, query: {id:metadataTwistId}}, res);
+						posts.images({headers: {uid:testUserUID}, params: {id:metadataTwistId}}, res);
 					});
 				});
 
@@ -451,7 +451,7 @@ describe('init post', function() {
 							assert.equal(newTwistId, res.value._id);
 							done();
 						}
-						posts.delete({headers: {uid:testUserUID}, query: {id:newTwistId}}, res);
+						posts.delete({headers: {uid:testUserUID}, params: {id:newTwistId}}, res);
 					});
 
 					it('should delete two', function(done) {
@@ -461,7 +461,7 @@ describe('init post', function() {
 							assert.equal(metadataTwistId, res.value._id);
 							done();
 						}
-						posts.delete({headers: {uid:testUserUID}, query: {id:metadataTwistId}}, res);
+						posts.delete({headers: {uid:testUserUID}, params: {id:metadataTwistId}}, res);
 					});
 
 					it('should retrieve init count', function(done) {
