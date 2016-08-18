@@ -26,6 +26,9 @@ module.exports = kind({
 		{kind: Button, content: 'OK', ontap: 'okButton'},
 			{name: 'errorPopup', kind: Popup, content: ''}
 	],
+	published: {
+		then: null
+	},
 
 	okButton: function() {
 		var login = this.$.login.getValue();
@@ -46,15 +49,23 @@ module.exports = kind({
 
   	loginResponse: function(inSender, inResponse) {
 		inResponse.username = this.$.login.getValue();
-		Storage.setValue('token', inResponse, function() {});
+		var that = this;
+		Storage.setValue('token', inResponse, function() {
+			that.parent.setToken(inResponse);
+			if (that.then) {
+				that.then.call(that.parent);
+			}
+		});
 		this.hide();
 	},
 
 	loginFail: function(inSender, inError) {
-		this.hide();
 		if (inError != 401) {
+			this.hide();
 			this.$.errorPopup.setContent('Error '+inError+' while connecting to server');
 			this.$.errorPopup.show();
+		} else {
+			this.setSubTitle("Wrong user or password, type your login and password again");
 		}
 	}
 });

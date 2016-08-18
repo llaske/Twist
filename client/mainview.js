@@ -26,9 +26,15 @@ module.exports = kind({
 		{name: 'textDecorator', kind: InputDecorator, spotlight: true, classes: "twist-text-decorator", components: [
 			{name: "text", kind: SmartTextArea, onfocus: 'focused', oninput: 'updateCount', onValidate: 'publishTwist'}
 		]},
-		{name: 'authDialog', kind: Dialog, onHide: 'createTwist'},
+		{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
+			{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused'}
+		]},
+		{name: 'authDialog', kind: Dialog},
 		{name: 'errorPopup', kind: Popup, content: ''}
 	],
+	published: {
+		token: null
+	},
 
 	create: function() {
 		this.inherited(arguments);
@@ -41,33 +47,36 @@ module.exports = kind({
 			this.$.url.setValue(decodeURI(href));
 		}
 
-		// Initialize
 		Spotlight.initialize(this);
-		this.$.text.setTags(["microsoft", "mobile", "android", "dotnet", "facebook", "apple"]);
+
+		this.initialized = false;
 	},
 
 	rendered: function() {
 		this.inherited(arguments);
 
-		this.$.url.focus();
+		// Initialize
+		if (!this.initialized) {
+			this.initialized = true;
+			this.$.url.focus();
+			this.callMethod('getTags');
+			/*if (this.$.url.getValue()) {
+				this.callMethod('createTwist');
+			}*/
+		}
 	},
 
 	focused: function(ctrl) {
-		var newFocus, oldFocus;
-		if (ctrl.name == 'url') {
-			newFocus = this.$.urlDecorator;
-			oldFocus = this.$.textDecorator;
-		} else {
-			newFocus = this.$.textDecorator;
-			oldFocus = this.$.urlDecorator;
-		}
-		newFocus.addClass('twist-focused');
-		oldFocus.removeClass('twist-focused');
+		this.$.urlDecorator.removeClass('twist-focused');
+		this.$.textDecorator.removeClass('twist-focused');
+		this.$.authorDecorator.removeClass('twist-focused');
+		ctrl.parent.addClass('twist-focused');
 	},
 
 	twistButtonTapped: function() {
 		this.$.urlDecorator.removeClass('twist-focused');
 		this.$.textDecorator.removeClass('twist-focused');
+		this.$.authorDecorator.removeClass('twist-focused');
 		this.publishTwist();
 	},
 
@@ -80,6 +89,43 @@ module.exports = kind({
 		}
 		this.$.count.setContent(count);
 		return count;
+	},
+
+	callMethod: function(methodName) {
+		var that = this;
+		var method = util.bindSafely(this, methodName);
+		Storage.getValue("token", function(token) {
+			// Check token first
+			that.token = token;
+			if (!that.token) {
+				that.$.authDialog.setThen(method);
+				that.$.authDialog.show();
+				return;
+			}
+
+			// Call method directly
+			method.call(that);
+		});
+	},
+
+	getTags: function() {
+		var ajax = new Ajax({
+			url: "http://localhost:8081/api/tag",
+			method: "GET",
+			handleAs: "json"
+		});
+		ajax.headers = {
+			"x-key": this.token.username,
+			"x-access-token": this.token.token,
+			"uid": this.token.uid,
+			"data-method": "getTags"
+		};
+		var that = this;
+		ajax.response(function(sender, response) {
+			that.$.text.setTags(response);
+		});
+		ajax.error(util.bindSafely(this, 'apiCallFail'));
+		ajax.go();
 	},
 
 	createTwist: function() {
@@ -113,15 +159,16 @@ module.exports = kind({
 		});*/
 	},
 
-	apiCallResponse: function(inSender, inResponse) {
+	/*apiCallResponse: function(inSender, inResponse) {
 		this.$.url.setValue('');
 		this.$.text.setValue(''); // TODO: A reinit is probably better
-	},
+	},*/
 
 	apiCallFail: function(inSender, inError) {
-		if (inError == 401)
+		if (inError == 401) {
+			this.$.authDialog.setThen(util.bindSafely(this, inSender.headers["data-method"]));
 			this.$.authDialog.show();
-		else {
+		} else {
 			this.$.errorPopup.setContent('Error '+inError+' while connecting to server');
 			this.$.errorPopup.show();
 		}
