@@ -116,81 +116,59 @@ module.exports = kind({
 
 	// Retrieve all existing tags
 	getTags: function() {
-		var ajax = new Ajax({
-			url: "http://localhost:8081/api/tag",
-			method: "GET",
-			handleAs: "json"
-		});
-		ajax.headers = {
-			"x-key": this.token.username,
-			"x-access-token": this.token.token,
-			"uid": this.token.uid,
-			"data-method": "getTags"
-		};
 		var that = this;
-		ajax.response(function(sender, response) {
-			that.$.text.setTags(response);
-		});
-		ajax.error(util.bindSafely(this, 'apiCallFail'));
-		ajax.go();
+		this.sendRequest(
+			"tag",
+			"GET",
+			"getTags",
+			{},
+			function(sender, response) {
+				that.$.text.setTags(response);
+			}
+		);
 	},
 
-	// Create the Twist in database (without publishing it first)
+	// Create the Twist in database (without publishing it at first)
 	createTwist: function() {
-		var ajax = new Ajax({
-			url: "http://localhost:8081/api/twist",
-			method: "POST",
-			handleAs: "json",
-			postBody: {
+		var that = this;
+		this.sendRequest(
+			"twist",
+			"POST",
+			"createTwist",
+			{
 				uid: this.token.uid,
 				url: encodeURI(this.$.url.getValue()),
 				text: this.$.text.getValue(),
 				author: this.$.author.getValue(),
 				cleaned: true,
 				published: false
-			}
-		});
-		ajax.headers = {
-			"x-key": this.token.username,
-			"x-access-token": this.token.token,
-			"uid": this.token.uid,
-			"data-method": "createTwist"
-		};
-		var that = this;
-		ajax.response(function(sender, response) {
-			// Store cleaned URL
-			that.twist = response;
-			that.$.url.setValue(that.twist.url);
+			},
+			function(sender, response) {
+				// Store cleaned URL
+				that.twist = response;
+				that.$.url.setValue(that.twist.url);
 
-			// Shorten URL
-			that.shortenURL();
-		});
-		ajax.error(util.bindSafely(this, 'apiCallFail'));
-		ajax.go();
+				// Shorten URL
+				that.shortenURL();
+			}
+		);
 	},
 
 	// Shorten URL of the twist
 	shortenURL: function() {
-		var ajax = new Ajax({
-			url: "http://localhost:8081/api/twist/"+this.twist._id+"/short",
-			method: "GET",
-			handleAs: "json"
-		});
-		ajax.headers = {
-			"x-key": this.token.username,
-			"x-access-token": this.token.token,
-			"uid": this.token.uid,
-			"data-method": "shortenURL"
-		};
 		var that = this;
-		ajax.response(function(sender, response) {
-			if (response.urlShortened) {
-				that.twist.urlShortened = response.urlShortened;
-				that.$.url.setValue(that.twist.urlShortened);
+		this.sendRequest(
+			"twist/"+this.twist._id+"/short",
+			"GET",
+			"shortenURL",
+			{},
+			function(sender, response) {
+				if (response.urlShortened) {
+					that.twist.urlShortened = response.urlShortened;
+					that.$.url.setValue(that.twist.urlShortened);
+				}
 			}
-		});
-		ajax.error(util.bindSafely(this, 'apiCallFail'));
-		ajax.go();
+		);
 	},
 
 	// Publish the Twist
@@ -198,7 +176,34 @@ module.exports = kind({
 		console.log('Publish the Twist !');
 	},
 
-	// API error handler: if auth error, open the dialog then relaunch the command
+	// Generic method to build and send a request to the server with the header already included
+	sendRequest: function(apiToCall, apiType, dataMethod, postParams, callbackOk, callbackError) {
+		var ajax = new Ajax({
+			url: "http://localhost:8081/api/"+apiToCall,
+			method: apiType,
+			handleAs: "json"
+		});
+		if (apiType != "GET") {
+			ajax.postBody = postParams;
+		}
+		ajax.headers = {
+			"x-key": this.token.username,
+			"x-access-token": this.token.token,
+			"uid": this.token.uid,
+			"data-method": dataMethod
+		};
+		ajax.response(function(sender, response) {
+			callbackOk(sender, response);
+		});
+		if (callbackError) {
+			ajax.error(callbackError);
+		} else {
+			ajax.error(util.bindSafely(this, 'apiCallFail'));
+		}
+		ajax.go();
+	},
+
+	// Generic API error handler: if auth error, open the dialog then relaunch the command
 	apiCallFail: function(inSender, inError) {
 		if (inError == 401) {
 			this.$.authDialog.setThen(util.bindSafely(this, inSender.headers["data-method"]));
