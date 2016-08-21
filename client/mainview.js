@@ -7,6 +7,9 @@ var
 	IconButton = require('moonstone/IconButton'),
 	InputDecorator = require('moonstone/InputDecorator'),
 	Popup = require('moonstone/Popup'),
+	Img = require('enyo/Image'),
+	GridListImageItem = require('moonstone/GridListImageItem'),
+	Overlay = require('moonstone/Overlay'),
 	Spotlight = require('spotlight'),
 	Dialog = require('./dialog'),
 	SmartTextArea = require('./smarttext'),
@@ -28,6 +31,8 @@ module.exports = kind({
 		]},
 		{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
 			{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused'}
+		]},
+		{name: 'images', classes: 'twist-images selection-enabled', components: [
 		]},
 		{name: 'authDialog', kind: Dialog},
 		{name: 'errorPopup', kind: Popup, content: ''}
@@ -68,6 +73,27 @@ module.exports = kind({
 		this.$.textDecorator.removeClass('twist-focused');
 		this.$.authorDecorator.removeClass('twist-focused');
 		ctrl.parent.addClass('twist-focused');
+	},
+
+	// Image selection change
+	imageSelected: function (sender, e) {
+		// Unselect all image - except the one clicked
+		var images = this.$.images.children;
+		for (var i = 0 ; i < images.length ; i++) {
+			if (images[i] != sender) {
+				images[i].set('selected', false);
+			}
+		}
+
+		// Change image selection
+		sender.set('selected', !sender.selected);
+
+		// Update the twist images
+		if (sender.selected) {
+			this.twist.image = sender.source;
+		} else {
+			this.twist.image = undefined;
+		}
 	},
 
 	// Twist button tapped, publish the Twist
@@ -150,6 +176,9 @@ module.exports = kind({
 
 				// Shorten URL
 				that.shortenURL();
+
+				// Get metadata
+				that.getMetadata();
 			}
 		);
 	},
@@ -166,6 +195,74 @@ module.exports = kind({
 				if (response.urlShortened) {
 					that.twist.urlShortened = response.urlShortened;
 					that.$.url.setValue(that.twist.urlShortened);
+				}
+			}
+		);
+	},
+
+	// Get metadata of the twist
+	getMetadata: function() {
+		var that = this;
+		this.sendRequest(
+			"twist/"+this.twist._id+"/metadata",
+			"GET",
+			"getMetadata",
+			{},
+			function(sender, response) {
+				// If an images is specified in metadata, use it
+				if (response.metadata && response.metadata.image) {
+					// Display the image
+					that.$.images.createComponent(
+						{
+							kind: GridListImageItem,
+							classes: 'twist-image-item',
+							selected: true,
+							source: response.metadata.image,
+							placeholder: Img.placeholder,
+							ontap: 'imageSelected',
+							mixins: [Overlay.Selection]
+						},
+						{owner: that}
+					).render();
+
+					// Use it for the twist
+					that.twist.image = response.metadata.image;
+				}
+
+				// Load all images in the page
+				else {
+					that.getImages();
+				}
+			}
+		);
+	},
+
+	// Get images of the twist
+	getImages: function() {
+		var that = this;
+		this.sendRequest(
+			"twist/"+this.twist._id+"/images",
+			"GET",
+			"getImages",
+			{},
+			function(sender, response) {
+				// If there is images in the page
+				if (response.images && response.images.length > 0) {
+					// Display each image
+					for (var i = 0 ; i < response.images.length ; i++) {
+						that.$.images.createComponent(
+							{
+								kind: GridListImageItem,
+								classes: 'twist-image-item',
+								selected: false,
+								source: response.images[i],
+								placeholder: Img.placeholder,
+								ontap: 'imageSelected',
+								mixins: [Overlay.Selection]
+							},
+							{owner: that}
+						).render();
+					}
 				}
 			}
 		);
