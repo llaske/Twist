@@ -175,10 +175,10 @@ module.exports = kind({
 				that.$.url.setValue(that.twist.url);
 
 				// Shorten URL
-				that.shortenURL();
+				that.callMethod('shortenURL');
 
 				// Get metadata
-				that.getMetadata();
+				that.callMethod('getMetadata');
 			}
 		);
 	},
@@ -231,7 +231,7 @@ module.exports = kind({
 
 				// Load all images in the page
 				else {
-					that.getImages();
+					that.callMethod('getImages');
 				}
 			}
 		);
