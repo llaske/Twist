@@ -105,6 +105,14 @@ describe('init publisher', function() {
 						});
 					});
 
+					it('should return nothing if unexisting url', function(done) {
+						publisher.getMetadata({url: "http://www"}, function(result) {
+							assert.notEqual(result.error, null);
+							assert.notEqual(result.error, undefined);
+							done();
+						});
+					});
+
 					it('should get title and description', function(done) {
 						publisher.getMetadata({url: "http://www.latribune.fr/entreprises-finance/services/transport-logistique/sans-uber-et-lyft-une-ville-texane-tente-de-s-organiser-differemment-581360.html"}, function(result) {
 							assert.notEqual(result.metadata, null);
@@ -138,6 +146,14 @@ describe('init publisher', function() {
 							for (var i = 0 ; i < result.images.length ; i++) {
 								assert.equal(0, result.images[i].indexOf('http'));
 							}
+							done();
+						});
+					});
+
+					it('should return nothing if unexisting url', function(done) {
+						publisher.getImages({url: "http://www"}, function(result) {
+							assert.notEqual(result.error, null);
+							assert.notEqual(result.error, undefined);
 							done();
 						});
 					});

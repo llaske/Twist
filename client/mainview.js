@@ -75,6 +75,19 @@ module.exports = kind({
 		ctrl.parent.addClass('twist-focused');
 	},
 
+	// Reset Content-type
+	resetContent: function() {
+		this.$.text.reset('');
+		this.$.author.setValue('');
+		var images = [];
+		for (var i = 0 ; i < this.$.images.getControls().length ; i++) {
+			images.push(this.$.images.controls[i]);
+		}
+		for (var i = 0 ; i < images.length ; i++) {
+			images[i].destroy();
+		}
+	},
+
 	// Image selection change
 	imageSelected: function (sender, e) {
 		// Unselect all image - except the one clicked
@@ -156,6 +169,14 @@ module.exports = kind({
 
 	// Create the Twist in database (without publishing it at first)
 	createTwist: function() {
+		// A twist is already here
+		if (this.twist) {
+			// First delete the current one
+			this.callMethod('deleteTwist');
+			this.resetContent();
+		}
+
+		// Then create the new Twist
 		var that = this;
 		this.sendRequest(
 			"twist",
@@ -273,6 +294,19 @@ module.exports = kind({
 						).render();
 					}
 				}
+			}
+		);
+	},
+
+	// Delete the twist
+	deleteTwist: function() {
+		var that = this;
+		this.sendRequest(
+			"twist/"+this.twist._id,
+			"DELETE",
+			"deleteTwist",
+			{},
+			function(sender, response) {
 			}
 		);
 	},

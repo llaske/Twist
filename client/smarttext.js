@@ -104,7 +104,6 @@ module.exports = kind({
 				 	current = (getRawSelection(selection)+char).toLowerCase();
 				}
 				for (var i = 0 ; i < tags.length ; i++) {
-console.log("Look for <"+current+"> in <"+tags[i]+">");
 					if (tags[i].indexOf(current) == 0) {
 						var delta = platform.firefox ? -this.replaceValue.length : 1; // HACK: Firefox handle selection differently
 						this.insertAtCursor(tags[i].substr(current.length-1));
@@ -137,6 +136,16 @@ console.log("Look for <"+current+"> in <"+tags[i]+">");
 			rawtext += nodes[i].innerText;
 		}
 		return rawtext;
+	},
+
+	reset: function() {
+		var root = this.hasNode();
+		if (!root) {
+			return;
+		}
+		while (root.firstChild) {
+		    root.removeChild(root.firstChild);
+		}
 	}
 });
 

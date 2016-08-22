@@ -8,6 +8,15 @@ var soupselect = require("soupselect");
 module.exports = {
 	process: function(twist, callback) {
 		request({url: twist.url}, function(error, response, body) {
+			// Invalid url
+			if (error) {
+				callback({
+					provider: 'imagepicker',
+					error: 'invalid url'
+				});
+				return;
+			}
+
 			// Register handler
 			var images = [];
 			response.setEncoding('utf8');
