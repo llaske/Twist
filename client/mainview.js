@@ -179,6 +179,15 @@ module.exports = kind({
 
 				// Get metadata
 				that.callMethod('getMetadata');
+			},
+			function(sender, error) {
+				if (error == 400) {
+					// Invalid URL
+					that.$.errorPopup.setContent('Invalid URL');
+					that.$.errorPopup.show();
+				} else {
+					that.apiCallFail(sender, error);
+				}
 			}
 		);
 	},

@@ -25,8 +25,15 @@ module.exports = {
 		// Check params
 		var params = req.body;
 		var post = {};
-		if (!params.uid || !params.url) {
-			res.send({'error': 'Invalid arguments'});
+		if (!params.uid) {
+			res.status(400);
+			res.send({'error': 'Invalid user'});
+			return;
+		}
+		var isUrl = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+		if (!params.url || !isUrl.test(params.url)) {
+			res.status(400);
+			res.send({'error': 'Invalid url'});
 			return;
 		}
 
@@ -70,6 +77,7 @@ module.exports = {
 		// Check params
 		var params = req.body;
 		if (!params.uid || !params._id || !mongo.ObjectID.isValid(params._id)) {
+			res.status(400);
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
@@ -95,6 +103,7 @@ module.exports = {
 			db.collection(postsCollection, function(err, collection) {
 				collection.update({'_id':new mongo.ObjectID(params._id)}, {$set: post}, {safe:true}, function(err, result) {
 					if (err) {
+						res.status(400);
 						res.send({'error':'An error has occurred'});
 					} else {
 						// Publish if need
@@ -118,22 +127,26 @@ module.exports = {
 		// Check params
 		var params = req;
 		if (!params || !params.headers || !params.params) {
+			res.status(400);
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
 		var uid = params.headers['uid'];
 		var id = params.params.id;
 		if (!uid || !mongo.ObjectID.isValid(uid)) {
+			res.status(400);
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
 		if (!id || !mongo.ObjectID.isValid(id)) {
+			res.status(400);
 			res.send({'error': 'Invalid arguments'});
 			return;
 		}
 		db.collection(postsCollection, function(err, collection) {
 			collection.remove({'_id':new mongo.ObjectID(id), 'uid':uid}, function(err, result) {
 				if (err) {
+					res.status(400);
 					res.send({'error':'An error has occurred'});
 				} else {
 					res.send({_id:id});
@@ -148,6 +161,7 @@ module.exports = {
 		var uid;
 		if (req.headers && (uid = req.headers['uid'])) {
 			if (!mongo.ObjectID.isValid(uid)) {
+				res.status(400);
 				res.send([]);
 				return;
 			}
@@ -165,6 +179,14 @@ module.exports = {
 	findById: function(req, res) {
 		// Get post
 		getPost(req, function(item) {
+			// Invalid arguments
+			if (!item) {
+				res.status(400);
+				res.send();
+				return;
+			}
+
+			// Return item
 			res.send(item);
 		});
 	},
@@ -174,6 +196,7 @@ module.exports = {
 		var uid;
 		if (req.headers && (uid = req.headers['uid'])) {
 			if (!mongo.ObjectID.isValid(uid)) {
+				res.status(400);
 				res.send([]);
 				return;
 			}
@@ -206,6 +229,7 @@ module.exports = {
 		getPost(req, function(twist) {
 			// Invalid twist
 			if (!twist) {
+				res.status(400);
 				res.send();
 				return;
 			}
@@ -222,6 +246,7 @@ module.exports = {
 		getPost(req, function(twist) {
 			// Invalid twist
 			if (!twist) {
+				res.status(400);
 				res.send();
 				return;
 			}
@@ -238,6 +263,7 @@ module.exports = {
 		getPost(req, function(twist) {
 			// Invalid twist
 			if (!twist) {
+				res.status(400);
 				res.send();
 				return;
 			}
@@ -289,6 +315,7 @@ function createTwist(post, res) {
 	db.collection(postsCollection, function (err, collection) {
 		collection.insert(post, {safe:true}, function(err, result) {
 			if (err) {
+				res.status(400);
 				res.send({'error':'An error has occurred creating post'});
 			} else {
 				// Publish if need

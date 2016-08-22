@@ -19,10 +19,16 @@ describe('init post', function() {
 
 			describe('post', function(done) {
 				// HACK: Dummy request to match Express interface
-				var res = {send: function(value) {
-					this.value = value;
-					if (this.done) this.done();
-				}};
+				var res = {
+					send: function(value) {
+						this.value = value;
+						if (this.done) this.done();
+					},
+					status: function(value) {
+						if (value) this.httpstatus = value;
+						return this.httpstatus;
+					}
+				};
 
 				// Start test
 				this.timeout(2000);
@@ -80,9 +86,10 @@ describe('init post', function() {
 				describe('#create()', function() {
 					it('should create only with url and uid set', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal('Invalid arguments', res.value.error);
+							assert.equal('Invalid user', res.value.error);
 							done();
 						}
 						posts.create({body: {}}, res);
@@ -90,9 +97,10 @@ describe('init post', function() {
 
 					it('should create only with url set', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal('Invalid arguments', res.value.error);
+							assert.equal('Invalid url', res.value.error);
 							done();
 						}
 						posts.create({body: {uid:testUserUID}}, res);
@@ -100,9 +108,10 @@ describe('init post', function() {
 
 					it('should create only with uid set', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal('Invalid arguments', res.value.error);
+							assert.equal('Invalid user', res.value.error);
 							done();
 						}
 						posts.create({body: {url:encodeURI('http://lespot-bouygues.com')}}, res);
@@ -265,6 +274,7 @@ describe('init post', function() {
 				describe('#short()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.equal(undefined, res.value);
 							done();
 						}
@@ -273,6 +283,7 @@ describe('init post', function() {
 
 					it('should do nothing without id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.equal(undefined, res.value);
 							done();
 						}
@@ -341,6 +352,7 @@ describe('init post', function() {
 
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.equal(undefined, res.value);
 							done();
 						}
@@ -349,6 +361,7 @@ describe('init post', function() {
 
 					it('should do nothing without id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.equal(undefined, res.value);
 							done();
 						}
@@ -380,6 +393,7 @@ describe('init post', function() {
 				describe('#images()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.equal(undefined, res.value);
 							done();
 						}
@@ -388,6 +402,7 @@ describe('init post', function() {
 
 					it('should do nothing without id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.equal(undefined, res.value);
 							done();
 						}
@@ -426,6 +441,7 @@ describe('init post', function() {
 				describe('#delete()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.notEqual(undefined, res.value);
 							assert.notEqual(null, res.value);
 							assert.notEqual(undefined, res.value.error);
@@ -436,6 +452,7 @@ describe('init post', function() {
 
 					it('should do nothing without id', function(done) {
 						res.done = function() {
+							assert.equal(res.status(), 400);
 							assert.notEqual(undefined, res.value);
 							assert.notEqual(null, res.value);
 							assert.notEqual(undefined, res.value.error);
