@@ -86,6 +86,7 @@ module.exports = kind({
 		for (var i = 0 ; i < images.length ; i++) {
 			images[i].destroy();
 		}
+		this.updateCount();
 	},
 
 	// Image selection change
@@ -114,7 +115,9 @@ module.exports = kind({
 		this.$.urlDecorator.removeClass('twist-focused');
 		this.$.textDecorator.removeClass('twist-focused');
 		this.$.authorDecorator.removeClass('twist-focused');
-		this.publishTwist();
+		if (this.twist) {
+			this.publishTwist();
+		}
 	},
 
 	// Update character count for the twist
@@ -185,7 +188,7 @@ module.exports = kind({
 			{
 				uid: this.token.uid,
 				url: encodeURI(this.$.url.getValue()),
-				text: this.$.text.getValue(),
+				text: this.$.text.getRawtext(),
 				author: this.$.author.getValue(),
 				cleaned: true,
 				published: false
@@ -313,7 +316,35 @@ module.exports = kind({
 
 	// Publish the Twist
 	publishTwist: function() {
-		console.log('Publish the Twist !');
+		// Update fields
+		var that = this;
+		var twistUpdate = {
+			uid: this.token.uid,
+			url: encodeURI(this.$.url.getValue()),
+			text: this.$.text.getRawtext(),
+			author: this.$.author.getValue(),
+			published: true
+		};
+		if (this.twist.image) {
+			twistUpdate.image = this.twist.image;
+		}
+		if (this.twist.urlShortened) {
+			twistUpdate.urlShortened = this.twist.urlShortened;
+		}
+
+		// Send the update request to server
+		this.sendRequest(
+			"twist/"+this.twist._id,
+			"PUT",
+			"publishTwist",
+			twistUpdate,
+			function(sender, response) {
+				console.log(response);
+				that.$.url.setValue('');
+				that.resetContent();
+				that.twist = null;
+			}
+		);
 	},
 
 	// Generic method to build and send a request to the server with the header already included

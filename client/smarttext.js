@@ -37,14 +37,7 @@ module.exports = kind({
 		var newSize = this.getRawtext().length;
 		if (!newSize) {
 			// HACK: Remove all dummy text (BR, ...) when text is empty
-			var root = this.hasNode();
-			if (!root) {
-				return;
-			}
-			while (root.hasChildNodes()) {
-				root.removeChild(root.firstChild);
-			}
-			appendNode(this, "twist-in-text", "&nbsp;");
+			this.reset();
 		}
 	},
 
@@ -144,8 +137,9 @@ module.exports = kind({
 			return;
 		}
 		while (root.firstChild) {
-		    root.removeChild(root.firstChild);
+			root.removeChild(root.firstChild);
 		}
+		appendNode(this, "twist-in-text", "&nbsp;");
 	}
 });
 

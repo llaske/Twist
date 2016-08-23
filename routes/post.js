@@ -76,7 +76,7 @@ module.exports = {
 	update: function(req, res) {
 		// Check params
 		var params = req.body;
-		if (!params.uid || !params._id || !mongo.ObjectID.isValid(params._id)) {
+		if (!params.uid || !req.params.id || !mongo.ObjectID.isValid(req.params.id)) {
 			res.status(400);
 			res.send({'error': 'Invalid arguments'});
 			return;
@@ -94,14 +94,19 @@ module.exports = {
 		if (params.published) {
 			post.published = (params.published == "true");
 		}
-		// TODO: Add shortURL and image
+		if (params.image) {
+			post.image = params.image;
+		}
+		if (params.urlShortened) {
+			post.urlShortened = params.urlShortened;
+		}
 		post.updatedOn = new Date(Date.now());
 		publisher.parseTags(post, function(result) {
 			post.tags = result.tags;
 
 			// Update the Twist
 			db.collection(postsCollection, function(err, collection) {
-				collection.update({'_id':new mongo.ObjectID(params._id)}, {$set: post}, {safe:true}, function(err, result) {
+				collection.update({'_id':new mongo.ObjectID(req.params.id)}, {$set: post}, {safe:true}, function(err, result) {
 					if (err) {
 						res.status(400);
 						res.send({'error':'An error has occurred'});

@@ -215,6 +215,8 @@ describe('init post', function() {
 							assert.notEqual(res.value, undefined);
 							assert.equal('Bye #Microsoft, welcome #macOS', post.text);
 							assert.equal(post.author, '@c2s_bouygues');
+							assert.equal(post.image, 'http://lespot-bouygues.com/images/logotype.png');
+							assert.equal(post.urlShortened, 'http://bit.ly/11vmmy1');
 							assert.notEqual(post.tags, null);
 							assert.notEqual(post.tags, undefined);
 							assert.equal(post.tags.length, 2);
@@ -225,10 +227,11 @@ describe('init post', function() {
 						}
 						var update = {};
 						update.uid = testUserUID;
-						update._id = newTwistId;
 						update.text = 'Bye #Microsoft, welcome #macOS';
 						update.author = '@c2s_bouygues';
-						posts.update({body: update}, res);
+						update.image = 'http://lespot-bouygues.com/images/logotype.png';
+						update.urlShortened = 'http://bit.ly/11vmmy1';
+						posts.update({body: update, params: {id: newTwistId} }, res);
 					});
 
 					it('should updated with right fields', function(done) {

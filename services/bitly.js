@@ -8,7 +8,7 @@ module.exports = {
 	name: 'bitly',
 
 	type: 'service',
-	
+
 	process: function(account, twist, callback) {
 		// Check keys presence
 		var keys = account.keys;
@@ -22,19 +22,20 @@ module.exports = {
 		}
 
 		// Call bitly service
-		var url = "http://api.bit.ly/v3/shorten?apiKey="+keys.apiKey+"&login="+account.name+"&longUrl="+twist.url+"&format=txt";
+		var url = "http://api.bit.ly/v3/shorten?apiKey="+keys.apiKey+"&login="+account.name+"&longUrl="+twist.url+"&format=json";
 		request({url: url}, function(error, response, body) {
-			if (response.statusCode != 200) {
+			var data = JSON.parse(response.body);
+			if (data.status_code != 200) {
 				callback({
 					provider: 'bitly',
 					name: account.name,
-					error: body
+					error: data.status_txt
 				});
 			} else {
 				callback({
 					provider: 'bitly',
 					name: account.name,
-					urlShortened: body.replace('\n', '')
+					urlShortened: data.data.url
 				});
 			}
 		});

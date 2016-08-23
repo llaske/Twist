@@ -42,7 +42,7 @@ settings.load(function(ini) {
 	// Register API
 	app.all('/api/*', auth.validateRequest);
 	app.post('/api/twist', post.create);
-	app.put('/api/twist', post.update);
+	app.put('/api/twist/:id', post.update);
 	app.delete('/api/twist/:id', post.delete);
 	app.get('/api/twist', post.findAll);
 	app.get('/api/twist/:id', post.findById);
