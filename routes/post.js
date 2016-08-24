@@ -100,6 +100,9 @@ module.exports = {
 		if (params.urlShortened) {
 			post.urlShortened = params.urlShortened;
 		}
+		if (params.metadata) {
+			post.metadata = JSON.parse(params.metadata);
+		}
 		post.updatedOn = new Date(Date.now());
 		publisher.parseTags(post, function(result) {
 			post.tags = result.tags;

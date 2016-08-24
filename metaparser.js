@@ -37,7 +37,7 @@ module.exports = {
 						metadata.title = meta.attribs.content;
 					} else if (meta.attribs.name == 'dc.description' || meta.attribs.property == 'og:description') {
 						metadata.description = meta.attribs.content;
-					} else if (meta.attribs.name == 'og:image') {
+					} else if (meta.attribs.property == 'og:image') {
 						metadata.image = meta.attribs.content;
 					}
 				});

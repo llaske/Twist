@@ -260,6 +260,7 @@ module.exports = kind({
 
 					// Use it for the twist
 					that.twist.image = response.metadata.image;
+					that.twist.metadata = response.metadata;
 				}
 
 				// Load all images in the page
@@ -331,6 +332,10 @@ module.exports = kind({
 		if (this.twist.urlShortened) {
 			twistUpdate.urlShortened = this.twist.urlShortened;
 		}
+		if (this.twist.metadata) {
+			twistUpdate.metadata = JSON.stringify(this.twist.metadata);
+		}
+console.log(twistUpdate);
 
 		// Send the update request to server
 		this.sendRequest(
