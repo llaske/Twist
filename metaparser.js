@@ -29,22 +29,27 @@ module.exports = {
 					return;
 				}
 
-				// Extract image
-				var metadata = {};
-				var links = soupselect.select(dom, "link");
-				links.forEach(function(link) {
-					if (link.attribs.rel == 'image_src')
-						metadata.image = link.attribs.href;
-				});
-
 				// Extract title and descriptin
+				var metadata = {};
 				var metas = soupselect.select(dom, "meta");
 				metas.forEach(function(meta) {
-					if (meta.attribs.name == 'dc.title' || meta.attribs.property == 'og:title')
+					if (meta.attribs.name == 'dc.title' || meta.attribs.property == 'og:title') {
 						metadata.title = meta.attribs.content;
-					else if (meta.attribs.name == 'dc.description' || meta.attribs.property == 'og:description')
+					} else if (meta.attribs.name == 'dc.description' || meta.attribs.property == 'og:description') {
 						metadata.description = meta.attribs.content;
+					} else if (meta.attribs.name == 'og:image') {
+						metadata.image = meta.attribs.content;
+					}
 				});
+
+				// Extract image if not in metadata
+				if (!metadata.image) {
+					var links = soupselect.select(dom, "link");
+					links.forEach(function(link) {
+						if (link.attribs.rel == 'image_src')
+							metadata.image = link.attribs.href;
+					});
+				}
 
 				// Return metadata
 				twist.metadata = metadata;
