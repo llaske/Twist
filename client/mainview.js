@@ -22,7 +22,7 @@ module.exports = kind({
 	components: [
 		{content: 'Twist'},
 		{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
-			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', oninput: 'updateCount', onfocus: 'focused', onchange: 'createTwist'}
+			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist'}
 		]},
 		{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
 		{name: 'count', content: '0', classes: "twist-count"},
@@ -48,9 +48,11 @@ module.exports = kind({
 		// Set URL if one is provided on query string
 		var find = "?url=";
 		var index = window.location.href.indexOf(find);
+		this.urlAtStartup = false;
 		if (index != -1) {
 			var href = window.location.href.substr(index+find.length);
 			this.$.url.setValue(decodeURI(href));
+			this.urlAtStartup = true;
 		}
 
 		Spotlight.initialize(this);
@@ -179,6 +181,11 @@ module.exports = kind({
 			this.resetContent();
 		}
 
+		// Ignore null URL
+		if (this.$.url.getValue().length == 0) {
+			return;
+		}
+
 		// Then create the new Twist
 		var that = this;
 		this.sendRequest(
@@ -214,6 +221,14 @@ module.exports = kind({
 				}
 			}
 		);
+	},
+
+	// Create the twist if focus changed on the url field at startup
+	createTwistAtStartup: function() {
+		if (this.urlAtStartup) {
+			this.urlAtStartup = false;
+			this.createTwist();
+		}
 	},
 
 	// Shorten URL of the twist
