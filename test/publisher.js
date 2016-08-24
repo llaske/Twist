@@ -117,7 +117,8 @@ describe('init publisher', function() {
 						publisher.getMetadata({url: "http://www.latribune.fr/entreprises-finance/services/transport-logistique/sans-uber-et-lyft-une-ville-texane-tente-de-s-organiser-differemment-581360.html"}, function(result) {
 							assert.notEqual(result.metadata, null);
 							assert.notEqual(result.metadata, undefined);
-							assert.equal(2, Object.keys(result.metadata).length);
+							assert.equal(3, Object.keys(result.metadata).length);
+							assert.equal('http://static.latribune.fr/full_width/581430/austin.png', result.metadata.image);
 							assert.equal("Sans Uber et Lyft, une ville texane tente de s&#039;organiser différemment", result.metadata.title);
 							assert.equal("A Austin, au Texas, des réglementations strictes ont été mises en place en mai dernier vis à vis des compagnies de VTC. Suite à cela Uber et Lyft ont quitté la ville et de nouvelles méthodes contournent ces interdictions.", result.metadata.description);
 							done();
@@ -267,7 +268,7 @@ describe('init publisher', function() {
 						publisher.getOn(yammer, {uid: testUserUID, id: yamId}, function(result) {
 							assert.notEqual(result.text, null);
 							assert.notEqual(result.text, undefined);
-							assert.equal("Hello!", result.text);
+							assert.equal("Hello! http://lespot-bouygues.com", result.text);
 							assert.equal("http://lespot-bouygues.com", result.url);
 							done();
 						});

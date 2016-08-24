@@ -74,58 +74,61 @@ module.exports = {
 	},
 
 	update: function(req, res) {
-		// Check params
-		var params = req.body;
-		if (!params.uid || !req.params.id || !mongo.ObjectID.isValid(req.params.id)) {
-			res.status(400);
-			res.send({'error': 'Invalid arguments'});
-			return;
-		}
+		// Get post
+		getPost(req, function(twist) {
+			// Invalid twist
+			if (!twist) {
+				res.status(400);
+				res.send({'error': 'Invalid arguments'});
+				return;
+			}
 
-		// Update twist property values
-		var post = {};
-		post.uid = params.uid;
-		if (params.text) {
-			post.text = params.text;
-		}
-		if (params.author) {
-			post.author = params.author;
-		}
-		if (params.published) {
-			post.published = (params.published == "true");
-		}
-		if (params.image) {
-			post.image = params.image;
-		}
-		if (params.urlShortened) {
-			post.urlShortened = params.urlShortened;
-		}
-		if (params.metadata) {
-			post.metadata = JSON.parse(params.metadata);
-		}
-		post.updatedOn = new Date(Date.now());
-		publisher.parseTags(post, function(result) {
-			post.tags = result.tags;
+			// Update twist property values
+			var post = twist;
+			var params = req.body;
+			post.uid = params.uid;
+			if (params.text) {
+				post.text = params.text;
+			}
+			if (params.author) {
+				post.author = params.author;
+			}
+			if (params.published) {
+				post.published = (params.published == "true");
+			}
+			if (params.image) {
+				post.image = params.image;
+			}
+			if (params.urlShortened) {
+				post.urlShortened = params.urlShortened;
+			}
+			if (params.metadata) {
+				post.metadata = JSON.parse(params.metadata);
+			}
+			post.updatedOn = new Date(Date.now());
+			publisher.parseTags(post, function(result) {
+				post.tags = result.tags;
 
-			// Update the Twist
-			db.collection(postsCollection, function(err, collection) {
-				collection.update({'_id':new mongo.ObjectID(req.params.id)}, {$set: post}, {safe:true}, function(err, result) {
-					if (err) {
-						res.status(400);
-						res.send({'error':'An error has occurred'});
-					} else {
-						// Publish if need
-						if (post.published) {
-							publisher.publish(post, function(execres) {
-								post.publishResult = execres;
-								res.send(post);
-							});
-							return;
+				// Update the Twist
+				db.collection(postsCollection, function(err, collection) {
+					collection.update({'_id':new mongo.ObjectID(req.params.id)}, {$set: post}, {safe:true}, function(err, result) {
+						if (err) {
+							res.status(400);
+							res.send({'error':'An error has occurred'});
+						} else {
+							// Publish if need
+							if (post.published) {
+								publisher.publish(post, function(execres) {
+									post.publishResult = execres;
+									res.send(post);
+								});
+								return;
+							}
+
+							// Else just send object
+							res.send(post);
 						}
-
-						// Else just send object
-						res.send(post);
-					}
+					});
 				});
 			});
 		});
@@ -287,11 +290,11 @@ module.exports = {
 // Private: get a twist
 function getPost(params, callback) {
 	// Get params
-	if (!params || !params.headers || !params.params) {
+	if (!params || (!params.headers && !params.body) || !params.params) {
 		callback();
 		return;
 	}
-	var uid = params.headers['uid'];
+	var uid = (params.headers ? params.headers['uid'] : params.body.uid);
 	var id = params.params.id;
 
 	// Limit to an user

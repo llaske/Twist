@@ -20,8 +20,13 @@ module.exports = {
 		}
 
 		// Post status update to Yammer
+		var content = twist.text ? twist.text + ' ' : '';
+		content += twist.url;
+		if (twist.author) {
+			content += ' ('+twist.author+')';
+		}
 		var message = {
-			body: twist.text ? twist.text : '',
+			body: content,
 			og_url: twist.url
 		};
 		if (twist.metadata) {
