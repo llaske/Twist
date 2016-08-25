@@ -65,7 +65,7 @@ describe('init post', function() {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(initCount, this.value.length);
+							assert.equal(initCount, res.value.length);
 							done();
 						}
 						posts.findAll({}, res);
@@ -75,7 +75,7 @@ describe('init post', function() {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(initUserCount, this.value.length);
+							assert.equal(initUserCount, res.value.length);
 							done();
 						}
 						posts.findAll({headers: {uid: testUserUID}}, res);

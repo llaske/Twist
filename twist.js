@@ -6,6 +6,7 @@ var logger = require('morgan');
 var settings = require('./settings');
 var auth = require('./routes/auth');
 var post = require('./routes/post');
+var account = require('./routes/account');
 var publisher = require('./publisher');
 
 var app = express()
@@ -34,6 +35,7 @@ settings.load(function(ini) {
 	// Init API
 	auth.init(ini);
 	post.init(ini);
+	account.init(ini);
 	publisher.init(ini);
 
 	// Register login
@@ -51,6 +53,7 @@ settings.load(function(ini) {
 	app.get('/api/twist/:id/images', post.images);
 	app.get('/api/twist/:id/author', post.author);
 	app.get('/api/tag', post.findTags);
+	app.get('/api/service', account.findAll);
 
 	// Start listening
 	app.listen(ini.web.port);
