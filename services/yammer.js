@@ -31,7 +31,7 @@ module.exports = {
 		};
 		if (twist.metadata) {
 			if (twist.metadata.description) {
-				message.og_description = twist.description;
+				message.og_description = twist.metadata.description;
 			}
 			if (twist.metadata.title) {
 				message.og_title = twist.metadata.title;

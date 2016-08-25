@@ -107,6 +107,9 @@ module.exports = kind({
 		// Update the twist images
 		if (sender.selected) {
 			this.twist.image = sender.source;
+			if (this.twist.metadata && !this.twist.metadata.image) {
+				this.twist.metadata.image = sender.source;
+			}
 		} else {
 			this.twist.image = undefined;
 		}
