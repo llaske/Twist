@@ -22,7 +22,7 @@ module.exports = kind({
 	components: [
 		{content: 'Twist'},
 		{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
-			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist'}
+			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist'}
 		]},
 		{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
 		{name: 'count', content: '0', classes: "twist-count"},
@@ -234,6 +234,18 @@ module.exports = kind({
 		}
 	},
 
+	// Reset the current Twist and screen
+	resetTwist: function() {
+		// Delete the current twist if there is one
+		if (this.twist) {
+			this.callMethod('deleteTwist');
+		}
+
+		// Reset screen content
+		this.resetContent();
+		this.$.url.setValue('');
+	},
+
 	// Shorten URL of the twist
 	shortenURL: function() {
 		var that = this;
@@ -362,7 +374,7 @@ console.log(twistUpdate);
 			"publishTwist",
 			twistUpdate,
 			function(sender, response) {
-				console.log(response);
+console.log(response);
 				that.$.url.setValue('');
 				that.resetContent();
 				that.twist = null;
