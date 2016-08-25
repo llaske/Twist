@@ -49,6 +49,7 @@ settings.load(function(ini) {
 	app.get('/api/twist/:id/short', post.short);
 	app.get('/api/twist/:id/metadata', post.metadata);
 	app.get('/api/twist/:id/images', post.images);
+	app.get('/api/twist/:id/author', post.author);
 	app.get('/api/tag', post.findTags);
 
 	// Start listening

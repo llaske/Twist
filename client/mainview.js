@@ -213,6 +213,9 @@ module.exports = kind({
 
 				// Get metadata
 				that.callMethod('getMetadata');
+
+				// Suggest author
+				that.callMethod('suggestAuthor');
 			},
 			function(sender, error) {
 				if (error == 400) {
@@ -296,6 +299,23 @@ module.exports = kind({
 				// Load all images in the page
 				else {
 					that.callMethod('getImages');
+				}
+			}
+		);
+	},
+
+	// Suggest author for the twist
+	suggestAuthor: function() {
+		var that = this;
+		this.sendRequest(
+			"twist/"+this.twist._id+"/author",
+			"GET",
+			"suggestAuthor",
+			{},
+			function(sender, response) {
+				if (response.author) {
+					that.twist.author = response.author;
+					that.$.author.setValue(that.twist.author);
 				}
 			}
 		);

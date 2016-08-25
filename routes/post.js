@@ -284,6 +284,23 @@ module.exports = {
 				res.send(result);
 			});
 		});
+	},
+
+	author: function(req, res) {
+		// Get post
+		getPost(req, function(twist) {
+			// Invalid twist
+			if (!twist) {
+				res.status(400);
+				res.send();
+				return;
+			}
+
+			// Get suggested author
+			publisher.suggestAuthor(twist, function(result) {
+				res.send(result);
+			});
+		});
 	}
 }
 

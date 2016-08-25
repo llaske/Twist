@@ -31,6 +31,7 @@ module.exports = {
 		services.twitter = require('./services/twitter');
 		services.yammer = require('./services/yammer');
 		services.bitly = require('./services/bitly');
+		services.authorsuggest = require('./services/authorsuggest');
 	},
 
 	publish: function(twist, callback) {
@@ -61,6 +62,12 @@ module.exports = {
 
 	shorten: function(twist, callback) {
 		callShortener(twist, function(result) {
+			callback(result);
+		});
+	},
+
+	suggestAuthor: function(twist, callback) {
+		callAuthorSuggest(twist, function(result) {
 			callback(result);
 		});
 	},
@@ -208,16 +215,26 @@ function parseTags(twist, callback) {
 
 // Private: Call shortener
 function callShortener(twist, callback) {
+	callServiceProvider('shortener', twist, callback);
+}
+
+// Private: Call author suggest service
+function callAuthorSuggest(twist, callback) {
+	callServiceProvider('dictionnary', twist, callback);
+}
+
+// Private: Call a service provider
+function callServiceProvider(service, twist, callback) {
 	// List all activated accounts for the user
-	var query = {uid: twist.uid, type: 'shortener', activated: true};
+	var query = {uid: twist.uid, type: service, activated: true};
 	getAccounts(query, function(accounts) {
-		// No shortener, call next
+		// No service, call next
 		if (accounts.length == 0) {
 			callback(null);
 			return;
 		}
 
-		// Get the shortener
+		// Get the service
 		var provider = services[accounts[0].provider];
 		if (provider) {
 			// Post with provider

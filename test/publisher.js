@@ -224,6 +224,22 @@ describe('init publisher', function() {
 					});
 				});
 
+				describe('#authorsuggest', function() {
+					it('should return a suggested author', function(done) {
+						publisher.suggestAuthor({uid: testUserUID, url: "http://fr.ubergizmo.com/2016/08/25/gants-dexmo-ressentir-objets-realite-virtuelle.html"}, function(result) {
+							assert.equal("@ubergizmofr", result.author);
+							done();
+						});
+					});
+
+					it('should do nothing if unknown prefix', function(done) {
+						publisher.suggestAuthor({uid: testUserUID, url: "http://lespot-bouygues.com"}, function(result) {
+							assert.equal(undefined, result.author);
+							done();
+						});
+					});
+				});
+
 				describe('#publish on Twitter', function() {
 					var tweetId = null;
 

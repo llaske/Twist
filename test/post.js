@@ -393,6 +393,54 @@ describe('init post', function() {
 					});
 				});
 
+				describe('#author()', function() {
+					it('should do nothing without uid and id', function(done) {
+						res.done = function() {
+							assert.equal(res.status(), 400);
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.author({headers: {}}, res);
+					});
+
+					it('should do nothing without id', function(done) {
+						res.done = function() {
+							assert.equal(res.status(), 400);
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.author({headers: {uid:testUserUID}}, res);
+					});
+
+					it('should do nothing with an invalid id', function(done) {
+						res.done = function() {
+							assert.equal(undefined, res.value);
+							done();
+						}
+						posts.author({headers: {uid:testUserUID}, params: {id:'ffffffffffffffffffffffff'}}, res);
+					});
+
+					it('should call author suggest without result', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.equal(undefined, res.value.author);
+							done();
+						}
+						posts.author({headers: {uid:testUserUID}, params: {id:newTwistId}}, res);
+					});
+
+					it('should call author suggest with a result', function(done) {
+						res.done = function() {
+							assert.notEqual(undefined, res.value);
+							assert.notEqual(null, res.value);
+							assert.equal("@mondeinformatiq", res.value.author);
+							done();
+						}
+						posts.author({headers: {uid:testUserUID}, params: {id:metadataTwistId}}, res);
+					});
+				});
+
 				describe('#images()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
