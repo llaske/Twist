@@ -10,6 +10,7 @@ var
 	Img = require('enyo/Image'),
 	GridListImageItem = require('moonstone/GridListImageItem'),
 	Overlay = require('moonstone/Overlay'),
+	Scroller = require('moonstone/Scroller'),
 	Spotlight = require('spotlight'),
 	Dialog = require('./dialog'),
 	SmartTextArea = require('./smarttext'),
@@ -32,7 +33,9 @@ module.exports = kind({
 		{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
 			{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused'}
 		]},
-		{name: 'images', classes: 'twist-images selection-enabled', components: [
+		{kind: Scroller, classes: 'twist-images-scroll', horizontal: 'hidden', components: [
+			{name: 'images', classes: 'twist-images selection-enabled', components: [
+			]}
 		]},
 		{name: 'authDialog', kind: Dialog},
 		{name: 'errorPopup', kind: Popup, content: ''}
