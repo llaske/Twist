@@ -128,6 +128,7 @@ module.exports = kind({
 		for (var i = 0 ; i < nodes.length ; i++) {
 			rawtext += nodes[i].innerText;
 		}
+		rawtext = rawtext.replace('\n', ' ').trim();
 		return rawtext;
 	},
 
