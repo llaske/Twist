@@ -4,9 +4,11 @@ var
 	platform = require('enyo/platform'),
 	Button = require('moonstone/Button'),
 	Input = require('moonstone/Input'),
+	Icon = require('moonstone/Icon'),
 	IconButton = require('moonstone/IconButton'),
 	InputDecorator = require('moonstone/InputDecorator'),
 	Popup = require('moonstone/Popup'),
+	Item = require('moonstone/Item'),
 	Img = require('enyo/Image'),
 	GridListImageItem = require('moonstone/GridListImageItem'),
 	Overlay = require('moonstone/Overlay'),
@@ -22,19 +24,45 @@ module.exports = kind({
 	classes: 'moon enyo-fit',
 	components: [
 		{content: 'Twist'},
-		{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
-			{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist'}
+		{classes: 'twist-block twist-properties', components: [
+			{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
+				{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist'}
+			]},
+			{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
+			{name: 'count', content: '0', classes: "twist-count"},
+			{name: 'textDecorator', kind: InputDecorator, spotlight: true, classes: "twist-text-decorator", components: [
+				{name: "text", kind: SmartTextArea, onfocus: 'focused', oninput: 'updateCount', onValidate: 'publishTwist'}
+			]},
+			{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
+				{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused'}
+			]},
+			{kind: Scroller, classes: 'twist-images-scroll', horizontal: 'hidden', components: [
+				{name: 'images', classes: 'twist-images selection-enabled', components: [
+				]}
+			]},
 		]},
-		{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
-		{name: 'count', content: '0', classes: "twist-count"},
-		{name: 'textDecorator', kind: InputDecorator, spotlight: true, classes: "twist-text-decorator", components: [
-			{name: "text", kind: SmartTextArea, onfocus: 'focused', oninput: 'updateCount', onValidate: 'publishTwist'}
-		]},
-		{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
-			{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused'}
-		]},
-		{kind: Scroller, classes: 'twist-images-scroll', horizontal: 'hidden', components: [
-			{name: 'images', classes: 'twist-images selection-enabled', components: [
+		{classes: 'twist-block twist-settings', components: [
+			{kind: Scroller, classes: 'twist-settings-scroll', components: [
+				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
+					{kind: Icon, src: '@./images/twitter.svg', ontap: 'serviceTapped'},
+					{content: '@lionellaske'},
+					{kind: Icon, icon: 'check', ontap: 'serviceSelected'}
+				]},
+				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
+					{kind: Icon, src: '@./images/twitter.svg', ontap: 'serviceTapped'},
+					{content: '@C2S_Bouygues'},
+					{kind: Icon, icon: 'check', showing: false, ontap: 'serviceSelected'}
+				]},
+				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
+					{kind: Icon, src: '@./images/yammer.svg', ontap: 'serviceTapped'},
+					{content: 'llaske@c2s.fr'},
+					{kind: Icon, icon: 'check', ontap: 'serviceSelected'}
+				]},
+				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
+					{kind: Icon, src: '@./images/facebook.svg', ontap: 'serviceTapped'},
+					{content: 'lionel.laske'},
+					{kind: Icon, icon: 'check', showing: false, ontap: 'serviceSelected'}
+				]},
 			]}
 		]},
 		{name: 'authDialog', kind: Dialog},
