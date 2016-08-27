@@ -34,15 +34,15 @@ module.exports = {
 		}
 
 		// Filter
-		if (req.params) {
-			if (req.params.type) {
-				query.type = req.params.type;
+		if (req.query) {
+			if (req.query.type) {
+				query.type = req.query.type;
 			}
-			if (req.params.provider) {
-				query.provider = req.params.provider;
+			if (req.query.provider) {
+				query.provider = req.query.provider;
 			}
-			if (req.params.activated) {
-				query.activated = (req.params.activated == 'true');
+			if (req.query.activated) {
+				query.activated = (req.query.activated == 'true');
 			}
 		}
 

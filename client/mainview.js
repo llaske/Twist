@@ -43,11 +43,7 @@ module.exports = kind({
 			]},
 		]},
 		{classes: 'twist-block twist-settings', components: [
-			{kind: Scroller, classes: 'twist-settings-scroll', components: [
-				{kind: ServiceItem, provider: 'twitter', account: '@lionellaske', active: true},
-				{kind: ServiceItem, provider: 'twitter', account: '@C2S_Bouygues', active: false},
-				{kind: ServiceItem, provider: 'yammer', account: 'llaske@c2s.fr', active: true},
-				{kind: ServiceItem, provider: 'facebook', account: 'lionel.laske', active: false}
+			{name: 'services', kind: Scroller, classes: 'twist-settings-scroll', components: [
 			]}
 		]},
 		{name: 'authDialog', kind: Dialog},
@@ -83,6 +79,7 @@ module.exports = kind({
 		// Initialize
 		this.$.url.focus();
 		this.callMethod('getTags');
+		this.callMethod('getServices');
 	},
 
 	// Focus changed, adapt field decoration
@@ -187,6 +184,31 @@ module.exports = kind({
 			{},
 			function(sender, response) {
 				that.$.text.setTags(response);
+			}
+		);
+	},
+
+	// Retrieve all services for user
+	getServices: function() {
+		var that = this;
+		this.sendRequest(
+			"service?type=publisher",
+			"GET",
+			"getServices",
+			{},
+			function(sender, response) {
+				for (var i = 0 ; i < response.length ; i++) {
+					var service = response[i];
+					that.$.services.createComponent(
+						{
+							kind: ServiceItem,
+							provider: service.provider,
+							account: service.name,
+							active: service.activated
+						},
+						{owner: that}
+					).render();
+				}
 			}
 		);
 	},

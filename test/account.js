@@ -75,7 +75,7 @@ describe('init account', function() {
 							}
 							done();
 						}
-						accounts.findAll({headers: {uid: testUserUID}, params: {type: 'publisher'}}, res);
+						accounts.findAll({headers: {uid: testUserUID}, query: {type: 'publisher'}}, res);
 					});
 
 					it('should filter by provider', function(done) {
@@ -92,7 +92,7 @@ describe('init account', function() {
 							}
 							done();
 						}
-						accounts.findAll({headers: {uid: testUserUID}, params: {provider: 'twitter'}}, res);
+						accounts.findAll({headers: {uid: testUserUID}, query: {provider: 'twitter'}}, res);
 					});
 
 					it('should filter by activated', function(done) {
@@ -110,7 +110,7 @@ describe('init account', function() {
 							}
 							done();
 						}
-						accounts.findAll({headers: {uid: testUserUID}, params: {activated: 'true'}}, res);
+						accounts.findAll({headers: {uid: testUserUID}, query: {activated: 'true'}}, res);
 					});
 
 					it('should multi-filter', function(done) {
@@ -128,7 +128,7 @@ describe('init account', function() {
 							}
 							done();
 						}
-						accounts.findAll({headers: {uid: testUserUID}, params: {activated: 'true', type: 'publisher'}}, res);
+						accounts.findAll({headers: {uid: testUserUID}, query: {activated: 'true', type: 'publisher'}}, res);
 					});
 				});
 			});
