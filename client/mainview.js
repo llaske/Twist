@@ -16,6 +16,7 @@ var
 	Spotlight = require('spotlight'),
 	Dialog = require('./dialog'),
 	SmartTextArea = require('./smarttext'),
+	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
 	Storage = require('./storage');
 
@@ -43,26 +44,10 @@ module.exports = kind({
 		]},
 		{classes: 'twist-block twist-settings', components: [
 			{kind: Scroller, classes: 'twist-settings-scroll', components: [
-				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
-					{kind: Icon, src: '@./images/twitter.svg', ontap: 'serviceTapped'},
-					{content: '@lionellaske'},
-					{kind: Icon, icon: 'check', ontap: 'serviceSelected'}
-				]},
-				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
-					{kind: Icon, src: '@./images/twitter.svg', ontap: 'serviceTapped'},
-					{content: '@C2S_Bouygues'},
-					{kind: Icon, icon: 'check', showing: false, ontap: 'serviceSelected'}
-				]},
-				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
-					{kind: Icon, src: '@./images/yammer.svg', ontap: 'serviceTapped'},
-					{content: 'llaske@c2s.fr'},
-					{kind: Icon, icon: 'check', ontap: 'serviceSelected'}
-				]},
-				{kind: Item, classes: 'moon-hspacing twist-service', ontap: 'serviceTapped', components: [
-					{kind: Icon, src: '@./images/facebook.svg', ontap: 'serviceTapped'},
-					{content: 'lionel.laske'},
-					{kind: Icon, icon: 'check', showing: false, ontap: 'serviceSelected'}
-				]},
+				{kind: ServiceItem, provider: 'twitter', account: '@lionellaske', active: true},
+				{kind: ServiceItem, provider: 'twitter', account: '@C2S_Bouygues', active: false},
+				{kind: ServiceItem, provider: 'yammer', account: 'llaske@c2s.fr', active: true},
+				{kind: ServiceItem, provider: 'facebook', account: 'lionel.laske', active: false}
 			]}
 		]},
 		{name: 'authDialog', kind: Dialog},
