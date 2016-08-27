@@ -33,6 +33,19 @@ module.exports = {
 			query.uid = uid;
 		}
 
+		// Filter
+		if (req.params) {
+			if (req.params.type) {
+				query.type = req.params.type;
+			}
+			if (req.params.provider) {
+				query.provider = req.params.provider;
+			}
+			if (req.params.activated) {
+				query.activated = (req.params.activated == 'true');
+			}
+		}
+
 		// Retrieve all accounts
 		db.collection(accountsCollection, function(err, collection) {
 			collection.find(query).toArray(function(err, items) {
