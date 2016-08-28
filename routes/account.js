@@ -20,6 +20,56 @@ module.exports = {
 		});
 	},
 
+	update: function(req, res) {
+		// Check params
+		if (!req || (!req.headers && !req.body) || !req.params) {
+			res.status(400);
+			res.send({'error': 'Invalid arguments'});
+			return;
+		}
+		var uid = (req.headers ? req.headers['uid'] : req.body.uid);
+		var id = req.params.id;
+		var query = {};
+		if (!uid || !mongo.ObjectID.isValid(uid) || !id || !mongo.ObjectID.isValid(id)) {
+			res.status(400);
+			res.send({'error': 'Invalid arguments'});
+			return;
+		}
+		query.uid = uid;
+		query._id = new mongo.ObjectID(id);
+
+		// Get params updated
+		var account = {};
+		var params = req.body;
+		if (params.name) {
+			account.name = params.name;
+		}
+		if (params.provider) {
+			account.provider = params.provider;
+		}
+		if (params.activated) {
+			account.activated = (params.activated == "true");
+		}
+		if (params.type) {
+			account.type = params.type;
+		}
+		if (params.keys) {
+			account.keys = JSON.parse(params.keys);
+		}
+
+		// Update account matching
+		db.collection(accountsCollection, function(err, collection) {
+			collection.update(query, {$set: account}, {safe:true}, function(err, result) {
+				if (err) {
+					res.status(400);
+					res.send({'error':'An error has occurred'});
+				} else {
+					res.send(account);
+				}
+			});
+		});
+	},
+
 	findAll: function(req, res) {
 		// Limit to an user
 		var query = {};

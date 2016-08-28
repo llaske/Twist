@@ -33,6 +33,8 @@ describe('init account', function() {
 				// Start test
 				this.timeout(2000);
 
+				var dummyAccount = null;
+
 				describe('#findAll()', function() {
 					it('should return nothing for invalid user', function(done) {
 						res.done = function() {
@@ -89,6 +91,9 @@ describe('init account', function() {
 								assert.equal(true, res.value[i].type.length > 0);
 								assert.notEqual(undefined, res.value[i].keys);
 								assert.notEqual(undefined, res.value[i].activated);
+								if (res.value[i].name == "@dummy") {
+									dummyAccount = res.value[i];
+								}
 							}
 							done();
 						}
@@ -129,6 +134,59 @@ describe('init account', function() {
 							done();
 						}
 						accounts.findAll({headers: {uid: testUserUID}, query: {activated: 'true', type: 'publisher'}}, res);
+					});
+				});
+
+				describe('#update()', function() {
+					it('should be updated', function(done) {
+						res.done = function() {
+							var account = res.value;
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal('dummyType', account.type);
+							assert.equal('dwitter', account.provider);
+							assert.equal(true, account.activated);
+							assert.notEqual(account.keys, undefined);
+							assert.notEqual(account.keys.name, undefined);
+							assert.notEqual(account.keys.value, undefined);
+							done();
+						}
+						var update = {};
+						update.uid = testUserUID;
+						update.type = 'dummyType';
+						update.activated = 'true';
+						update.provider = 'dwitter';
+						update.keys = JSON.stringify({ name: "twist", value: "spot"});
+						accounts.update({body: update, params: {id: dummyAccount._id} }, res);
+					});
+
+					it('should be updated a second time', function(done) {
+						res.done = function() {
+							var account = res.value;
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal('publisher', account.type);
+							assert.equal('twitter', account.provider);
+							assert.equal(false, account.activated);
+							assert.notEqual(account.keys, undefined);
+							assert.notEqual(account.keys.consumer_key, undefined);
+							assert.notEqual(account.keys.consumer_secret, undefined);
+							assert.notEqual(account.keys.access_token_key, undefined);
+							assert.notEqual(account.keys.access_token_secret, undefined);
+							done();
+						}
+						var update = {};
+						update.uid = testUserUID;
+						update.type = 'publisher';
+						update.activated = 'false';
+						update.provider = 'twitter';
+						update.keys = JSON.stringify({
+							consumer_key : "A",
+							consumer_secret : "B",
+							access_token_key : "C",
+							access_token_secret : "D"
+						}),
+						accounts.update({body: update, params: {id: dummyAccount._id} }, res);
 					});
 				});
 			});
