@@ -204,13 +204,22 @@ module.exports = kind({
 							kind: ServiceItem,
 							provider: service.provider,
 							account: service.name,
-							active: service.activated
+							active: service.activated,
+							service: service,
+							onStateChanged: "serviceStateUpdated"
 						},
 						{owner: that}
 					).render();
 				}
 			}
 		);
+	},
+
+	// Change state of a service
+	serviceStateUpdated: function(sender) {
+		var service = sender.service;
+		service.activated = !service.activated;
+		this.updateService(service);
 	},
 
 	// Create the Twist in database (without publishing it at first)
@@ -423,7 +432,6 @@ module.exports = kind({
 		if (this.twist.metadata) {
 			twistUpdate.metadata = JSON.stringify(this.twist.metadata);
 		}
-console.log(twistUpdate);
 
 		// Send the update request to server
 		this.sendRequest(
@@ -432,10 +440,30 @@ console.log(twistUpdate);
 			"publishTwist",
 			twistUpdate,
 			function(sender, response) {
-console.log(response);
 				that.$.url.setValue('');
 				that.resetContent();
 				that.twist = null;
+			}
+		);
+	},
+
+	// Update service
+	updateService: function(service) {
+		// Update fields
+		var that = this;
+		var serviceUpdate = {
+			uid: this.token.uid,
+			activated: service.activated
+		};
+
+		// Send the update request to server
+		this.sendRequest(
+			"service/"+service._id,
+			"PUT",
+			"updateService",
+			serviceUpdate,
+			function(sender, response) {
+console.log("updated");
 			}
 		);
 	},

@@ -10,7 +10,8 @@ module.exports = kind({
 	published: {
 		provider: '',
 		account: '',
-		active: false
+		active: false,
+		service: null
 	},
 	handlers: {
 		ontap: 'reverseSelection'
