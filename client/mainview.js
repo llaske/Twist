@@ -206,6 +206,7 @@ module.exports = kind({
 							account: service.name,
 							active: service.activated,
 							service: service,
+							error: service.activated ? '' : 'Error 401 in service loading',
 							onStateChanged: "serviceStateUpdated"
 						},
 						{owner: that}
