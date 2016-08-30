@@ -24,7 +24,7 @@ module.exports = kind({
 	name: 'MainView',
 	classes: 'moon enyo-fit',
 	components: [
-		{content: 'Twist'},
+		{content: 'Twist', classes: 'twist-title'},
 		{classes: 'twist-block twist-properties', components: [
 			{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
 				{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist'}
@@ -463,7 +463,6 @@ module.exports = kind({
 			"updateService",
 			serviceUpdate,
 			function(sender, response) {
-console.log("updated");
 			}
 		);
 	},
