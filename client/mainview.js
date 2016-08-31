@@ -436,6 +436,7 @@ module.exports = kind({
 		if (this.twist.metadata) {
 			twistUpdate.metadata = JSON.stringify(this.twist.metadata);
 		}
+		this.$.twistButton.disabled = true;
 
 		// Send the update request to server
 		this.sendRequest(
@@ -467,6 +468,7 @@ module.exports = kind({
 					that.resetContent();
 					that.twist = null;
 				}
+				that.$.twistButton.disabled = false;
 			}
 		);
 	},
