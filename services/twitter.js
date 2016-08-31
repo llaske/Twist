@@ -12,6 +12,7 @@ module.exports = {
 		var client = getClient(account);
 		if (client == null) {
 			callback({
+				aid: account._id,
 				provider: 'twitter',
 				name: account.name,
 				error: 'invalid keys'
@@ -27,6 +28,7 @@ module.exports = {
 		}
 		client.post('statuses/update', {status: content},  function(error, tweet, response){
 			var result = {
+				aid: account._id,
 				provider: 'twitter',
 				name: account.name
 			}
@@ -44,6 +46,7 @@ module.exports = {
 		var client = getClient(account);
 		if (client == null) {
 			callback({
+				aid: account._id,
 				provider: 'twitter',
 				name: account.name,
 				error: 'invalid keys'
@@ -54,6 +57,7 @@ module.exports = {
 		// Get the Tweet matching the id
 		client.get('statuses/show', {id: twist.id}, function(error, tweet, response) {
 			var result = {
+				aid: account._id,
 				provider: 'twitter',
 				name: account.name
 			}
@@ -71,6 +75,7 @@ module.exports = {
 		var client = getClient(account);
 		if (client == null) {
 			callback({
+				aid: account._id,
 				provider: 'twitter',
 				name: account.name,
 				error: 'invalid keys'
@@ -81,6 +86,7 @@ module.exports = {
 		// Delete the Tweet matching the id
 		client.post('statuses/destroy', {id: twist.id}, function(error, tweet, response) {
 			var result = {
+				aid: account._id,
 				provider: 'twitter',
 				name: account.name
 			}

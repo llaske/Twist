@@ -14,6 +14,7 @@ module.exports = {
 		var keys = account.keys;
 		if (!keys || !keys.apiKey) {
 			callback({
+				aid: account._id,
 				provider: 'bitly',
 				name: account.name,
 				error: 'invalid key'
@@ -27,12 +28,14 @@ module.exports = {
 			var data = JSON.parse(response.body);
 			if (data.status_code != 200) {
 				callback({
+					aid: account._id,
 					provider: 'bitly',
 					name: account.name,
 					error: data.status_txt
 				});
 			} else {
 				callback({
+					aid: account._id,
 					provider: 'bitly',
 					name: account.name,
 					urlShortened: data.data.url

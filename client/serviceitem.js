@@ -10,6 +10,7 @@ module.exports = kind({
 	kind: Item,
 	classes: "moon-hspacing twist-service",
 	published: {
+		aid: null,
 		provider: '',
 		account: '',
 		active: false,
@@ -20,7 +21,8 @@ module.exports = kind({
 		ontap: 'reverseSelection'
 	},
 	events: {
-		onStateChanged: ''
+		onStateChanged: '',
+		onmouseover: 'showTooltip'
 	},
 	components: [
 		{name: "iconProvider", kind: Icon},
@@ -68,8 +70,10 @@ module.exports = kind({
 	},
 
 	showTooltip: function(sender, e) {
-		sender.parent.children[1].position = 'below';
-		sender.parent.children[1].activator = sender.parent;
-		sender.parent.children[1].show();	// HACK: Force Tooltip
+		if (this.error) {
+			sender.parent.children[1].position = 'below';
+			sender.parent.children[1].activator = sender.parent;
+			sender.parent.children[1].show();	// HACK: Force Tooltip
+		}
 	}
 });

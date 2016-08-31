@@ -12,6 +12,7 @@ module.exports = {
 		var client = getClient(account);
 		if (client == null) {
 			callback({
+				aid: account._id,
 				provider: 'yammer',
 				name: account.name,
 				error: 'invalid keys'
@@ -42,6 +43,7 @@ module.exports = {
 		}
 		client.messages.create(message, function(error, yam) {
 			var result = {
+				aid: account._id,
 				provider: 'yammer',
 				name: account.name
 			}
@@ -59,6 +61,7 @@ module.exports = {
 		var client = getClient(account);
 		if (client == null) {
 			callback({
+				aid: account._id,
 				provider: 'yammer',
 				name: account.name,
 				error: 'invalid keys'
@@ -69,6 +72,7 @@ module.exports = {
 		// Get the Tweet matching the id
 		client.messages.get(twist.id, function(error, yam) {
 			var result = {
+				aid: account._id,
 				provider: 'yammer',
 				name: account.name
 			}
@@ -87,6 +91,7 @@ module.exports = {
 		var client = getClient(account);
 		if (client == null) {
 			callback({
+				aid: account._id,
 				provider: 'yammer',
 				name: account.name,
 				error: 'invalid keys'
@@ -97,6 +102,7 @@ module.exports = {
 		// Delete the Yammer message matching the id
 		client.messages.delete(twist.id, function(error, data) {
 			var result = {
+				aid: account._id,
 				provider: 'yammer',
 				name: account.name
 			}

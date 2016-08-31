@@ -211,6 +211,7 @@ describe('init publisher', function() {
 				describe('#shorten', function() {
 					it('should return a short url', function(done) {
 						publisher.shorten({uid: testUserUID, url: "http://lespot-bouygues.com"}, function(result) {
+							assert.notEqual(undefined, result.aid);
 							assert.equal("http://bit.ly/11vmmy1", result.urlShortened);
 							done();
 						});
@@ -218,6 +219,7 @@ describe('init publisher', function() {
 
 					it('should do nothing if already shortened', function(done) {
 						publisher.shorten({uid: testUserUID, url: "http://bit.ly/11vmmy1"}, function(result) {
+							assert.notEqual(undefined, result.aid);
 							assert.equal("ALREADY_A_BITLY_LINK", result.error);
 							done();
 						});
@@ -246,6 +248,7 @@ describe('init publisher', function() {
 					it('should publish', function(done) {
 						publisher.publishOn(twitter, {uid: testUserUID, url: "http://lespot-bouygues.com", text: "Hello!"}, function(result) {
 							assert.equal(undefined, result.error);
+							assert.notEqual(undefined, result.aid);
 							assert.notEqual(undefined, result.id);
 							tweetId = result.id;
 							done();
@@ -274,6 +277,7 @@ describe('init publisher', function() {
 
 					it('should publish', function(done) {
 						publisher.publishOn(yammer, {uid: testUserUID, url: "http://lespot-bouygues.com", text: "Hello!"}, function(result) {
+							assert.notEqual(undefined, result.aid);
 							assert.notEqual(undefined, result.id);
 							yamId = result.id;
 							done();

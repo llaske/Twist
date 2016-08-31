@@ -70,6 +70,7 @@ module.exports = kind({
 		Spotlight.initialize(this);
 
 		this.twist = null;
+		this.services = [];
 	},
 
 	// First rendering, initialize
@@ -199,18 +200,20 @@ module.exports = kind({
 			function(sender, response) {
 				for (var i = 0 ; i < response.length ; i++) {
 					var service = response[i];
-					that.$.services.createComponent(
+					var component = that.$.services.createComponent(
 						{
 							kind: ServiceItem,
 							provider: service.provider,
+							aid: service._id,
 							account: service.name,
 							active: service.activated,
 							service: service,
-							error: service.activated ? '' : 'Error 401 in service loading',
 							onStateChanged: "serviceStateUpdated"
 						},
 						{owner: that}
-					).render();
+					);
+					that.services.push(component);
+					component.render();
 				}
 			}
 		);
@@ -441,9 +444,29 @@ module.exports = kind({
 			"publishTwist",
 			twistUpdate,
 			function(sender, response) {
-				that.$.url.setValue('');
-				that.resetContent();
-				that.twist = null;
+				// Look for errors
+				var errors = false;
+				for (var i = 0 ; i < response.publishResult.length ; i++) {
+					// Update service state with the service responses
+					var serviceResponse = response.publishResult[i];
+					if (serviceResponse.error) {
+						errors = true;
+					}
+					var services = that.services;
+					for (var j = 0 ; j < services.length ; j++) {
+						var serviceItem = services[j];
+						if (serviceItem.aid == serviceResponse.aid) {
+							serviceItem.setError(serviceResponse.error);
+						}
+					}
+				}
+
+				// Clean screen if no error
+				if (!errors) {
+					that.$.url.setValue('');
+					that.resetContent();
+					that.twist = null;
+				}
 			}
 		);
 	},
