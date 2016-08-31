@@ -80,7 +80,6 @@ module.exports = kind({
 		// Initialize
 		this.$.url.focus();
 		this.callMethod('getTags');
-		this.callMethod('getServices');
 	},
 
 	// Focus changed, adapt field decoration
@@ -185,6 +184,8 @@ module.exports = kind({
 			{},
 			function(sender, response) {
 				that.$.text.setTags(response);
+
+				that.callMethod('getServices');
 			}
 		);
 	},
