@@ -27,15 +27,15 @@ module.exports = kind({
 		{content: 'Twist', classes: 'twist-title'},
 		{classes: 'twist-block twist-properties', components: [
 			{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
-				{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist'}
+				{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist', onkeydown: 'tabHandling'}
 			]},
 			{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
 			{name: 'count', content: '0', classes: "twist-count"},
 			{name: 'textDecorator', kind: InputDecorator, spotlight: true, classes: "twist-text-decorator", components: [
-				{name: "text", kind: SmartTextArea, onfocus: 'focused', oninput: 'updateCount', onValidate: 'publishTwist'}
+				{name: "text", kind: SmartTextArea, onfocus: 'focused', oninput: 'updateCount', onValidate: 'publishTwist', onkeydown: 'tabHandling'}
 			]},
 			{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
-				{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused'}
+				{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused', onkeydown: 'tabHandling'}
 			]},
 			{kind: Scroller, classes: 'twist-images-scroll', horizontal: 'hidden', components: [
 				{name: 'images', classes: 'twist-images selection-enabled', components: [
@@ -71,6 +71,7 @@ module.exports = kind({
 
 		this.twist = null;
 		this.services = [];
+		this.tabOrder = [this.$.url, this.$.text, this.$.author];
 	},
 
 	// First rendering, initialize
@@ -88,6 +89,40 @@ module.exports = kind({
 		this.$.textDecorator.removeClass('twist-focused');
 		this.$.authorDecorator.removeClass('twist-focused');
 		ctrl.parent.addClass('twist-focused');
+	},
+
+	// Handle TAB key, switch to next control
+	tabHandling: function(ctrl, e) {
+		// If TAB press
+		if (e.keyCode == 9) {
+			// Find the next controls and focus it
+			var next = null;
+			for (var i = 0 ; i < this.tabOrder.length ; i++) {
+				if (this.tabOrder[i] == ctrl) {
+					if (ctrl == this.$.text && this.$.text.tabbed) {
+						// Already processed
+						return;
+					}
+					if (!e.shiftKey) {
+						// Just TAB key, next control
+						if (i == this.tabOrder.length-1) {
+							next = this.tabOrder[0];
+						} else {
+							next = this.tabOrder[i+1];
+						}
+					} else {
+						// TAB+SHIFT, previous control
+						if (i == 0) {
+							next = this.tabOrder[this.tabOrder.length-1];
+						} else {
+							next = this.tabOrder[i-1];
+						}
+					}
+					next.focus();
+					return;
+				}
+			}
+		}
 	},
 
 	// Reset Content-type

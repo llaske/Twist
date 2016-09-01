@@ -17,7 +17,8 @@ module.exports = kind({
 		onValidate: ''
 	},
 	published: {
-		tags: []
+		tags: [],
+		tabbed: false
 	},
 
 	create: function() {
@@ -43,9 +44,12 @@ module.exports = kind({
 
 	keyDown: function(ctrl, e) {
 		// If TAB press in hashtag mode, replace by current selection
-		if (e.keyCode == 9 && this.replaceMode) {
-			this.removeSelection();
-			e.preventDefault();
+		if (e.keyCode == 9) {
+			this.tabbed = this.replaceMode;
+			if (this.replaceMode) {
+				this.removeSelection();
+				e.preventDefault();
+			}
 		}
 
 		// ENTER key validate the twist
