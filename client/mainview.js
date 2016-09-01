@@ -24,7 +24,10 @@ module.exports = kind({
 	name: 'MainView',
 	classes: 'moon enyo-fit',
 	components: [
-		{content: 'Twist', classes: 'twist-title'},
+		{components: [
+			{content: 'Twist', classes: 'twist-title'},
+			{kind: Icon, classes: 'twist-link', src: '@./images/binoculars.svg', ontap: 'seeOriginalLink'}
+		]},
 		{classes: 'twist-block twist-properties', components: [
 			{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
 				{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist', onkeydown: 'tabHandling'}
@@ -122,6 +125,13 @@ module.exports = kind({
 					return;
 				}
 			}
+		}
+	},
+
+	// Open a new window with the original link
+	seeOriginalLink: function() {
+		if (this.twist) {
+			window.open(this.twist.url);
 		}
 	},
 
