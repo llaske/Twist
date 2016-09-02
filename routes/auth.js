@@ -65,8 +65,17 @@ var auth = {
 		// Check username presence
 		db.collection(usersCollection, function(err, collection) {
 			collection.findOne({'username':username}, function(err, item) {
+				// Decode password
+				var decoded = '';
+				try {
+					decoded = jwt.decode(item.password, secret);
+				} catch (e) {
+					callback(null);
+					return;
+				}
+
 				// Not found or wrong password
-				if (!item || item.password != password) {
+				if (!item || decoded != password) {
 					callback(null);
 					return;
 				}
