@@ -49,7 +49,7 @@ module.exports = kind({
 			{name: 'services', kind: Scroller, classes: 'twist-settings-scroll', components: [
 			]}
 		]},
-		{name: 'authDialog', kind: Dialog},
+		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}
 	],
 	published: {
@@ -126,6 +126,10 @@ module.exports = kind({
 				}
 			}
 		}
+	},
+
+	authenticated: function() {
+		this.$.url.focus();
 	},
 
 	// Open a new window with the original link
@@ -211,6 +215,7 @@ module.exports = kind({
 				// Invalid, open auth dialog first
 				that.$.authDialog.setThen(method);
 				that.$.authDialog.show();
+				that.$.authDialog.giveFocus();
 				return;
 			}
 
@@ -293,7 +298,7 @@ module.exports = kind({
 			"POST",
 			"createTwist",
 			{
-				uid: this.token.uid,
+				uid: (this.token ? this.token.uid : ''),
 				url: encodeURI(this.$.url.getValue()),
 				text: this.$.text.getRawtext(),
 				author: this.$.author.getValue(),
@@ -328,7 +333,7 @@ module.exports = kind({
 
 	// Create the twist if focus changed on the url field at startup
 	createTwistAtStartup: function() {
-		if (this.urlAtStartup) {
+		if (this.urlAtStartup && this.token) {
 			this.urlAtStartup = false;
 			this.createTwist();
 		}
@@ -571,6 +576,7 @@ module.exports = kind({
 		if (inError == 401) {
 			this.$.authDialog.setThen(util.bindSafely(this, inSender.headers["data-method"]));
 			this.$.authDialog.show();
+			this.$.authDialog.giveFocus();
 		} else {
 			this.$.errorPopup.setContent('Error '+inError+' while connecting to server');
 			this.$.errorPopup.show();

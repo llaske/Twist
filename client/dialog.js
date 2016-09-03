@@ -37,6 +37,10 @@ module.exports = kind({
 		this.tabOrder = [this.$.login, this.$.password];
 	},
 
+	giveFocus: function() {
+		this.$.login.focus();
+	},
+
 	// Handle TAB key, switch to next control
 	tabHandling: function(ctrl, e) {
 		// If TAB press
