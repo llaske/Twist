@@ -65,17 +65,17 @@ var auth = {
 		// Check username presence
 		db.collection(usersCollection, function(err, collection) {
 			collection.findOne({'username':username}, function(err, item) {
-				// Decode password
-				var decoded = '';
+				// Encode password
+				var encoded = '';
 				try {
-					decoded = jwt.decode(item.password, secret);
+					encoded = jwt.encode(password, secret);
 				} catch (e) {
 					callback(null);
 					return;
 				}
 
 				// Not found or wrong password
-				if (!item || decoded != password) {
+				if (!item || encoded != item.password) {
 					callback(null);
 					return;
 				}
@@ -87,10 +87,16 @@ var auth = {
 	},
 
 	// Validate token
-	validateToken: function(username, token, callback) {
+	validateToken: function(username, token, uid, callback) {
+		// Build query
+		var query = {'username':username};
+		if (uid) {
+			query._id = new mongo.ObjectID(uid);
+		}
+
 		// Check username presence
 		db.collection(usersCollection, function(err, collection) {
-			collection.findOne({'username':username}, function(err, item) {
+			collection.findOne(query, function(err, item) {
 				// Not found or wrong token
 				if (!item || item.token != token) {
 					callback(false);
@@ -112,8 +118,9 @@ var auth = {
 	validateRequest: function(req, res, next) {
 		var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
 		var username = (req.body && req.body.x_key) || (req.query && req.query.x_key) || req.headers['x-key'];
+		var uid = (req.headers && req.headers['uid']) || (req.body && req.body.uid);
 		if (token || username) {
-			auth.validateToken(username, token, function(okay) {
+			auth.validateToken(username, token, uid, function(okay) {
 				if (okay) {
 					next();
 				} else {

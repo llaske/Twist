@@ -79,7 +79,7 @@ describe('auth', function() {
 				token = res.value;
 				done();
 			}
-			auth.login({body:{username: "test@lespot-bouygues.com", password: "test"}}, res);
+			auth.login({body:{username: "test@lespot-bouygues.com", password: "test@@"}}, res);
 		});
 	});
 
@@ -134,7 +134,7 @@ describe('auth', function() {
 			}
 			settings.auth.expires = 0;	// HACK: Reinit with an expire time of 0
 			auth.init(settings, function() {
-				auth.login({body:{username: "test@lespot-bouygues.com", password: "test"}}, res);
+				auth.login({body:{username: "test@lespot-bouygues.com", password: "test@@"}}, res);
 			});
 		});
 
