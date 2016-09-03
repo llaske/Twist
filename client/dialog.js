@@ -18,16 +18,64 @@ module.exports = kind({
 	autoDismiss: false,
 	components: [
 		{kind: InputDecorator, components: [
-			{name: 'login', kind: Input, placeholder: 'login'}
+			{name: 'login', kind: Input, placeholder: 'login', onkeydown: 'tabHandling'}
 		]},
 		{kind: InputDecorator, components: [
-			{name: 'password', kind: Input, type:'password', placeholder: 'password'}
+			{name: 'password', kind: Input, type:'password', placeholder: 'password', onkeydown: 'tabHandling'}
 		]},
-		{kind: Button, content: 'OK', ontap: 'okButton'},
-			{name: 'errorPopup', kind: Popup, content: ''}
+		{name: 'ok', kind: Button, content: 'OK', ontap: 'okButton'},
+		{name: 'errorPopup', kind: Popup, content: ''}
 	],
 	published: {
 		then: null
+	},
+
+	// Constructor
+	create: function() {
+		this.inherited(arguments);
+
+		this.tabOrder = [this.$.login, this.$.password];
+	},
+
+	// Handle TAB key, switch to next control
+	tabHandling: function(ctrl, e) {
+		// If TAB press
+		if (e.keyCode == 9) {
+			// Find the next controls and focus it
+			var next = null;
+			for (var i = 0 ; i < this.tabOrder.length ; i++) {
+				if (this.tabOrder[i] == ctrl) {
+					if (ctrl == this.$.text && this.$.text.tabbed) {
+						// Already processed
+						return;
+					}
+					if (!e.shiftKey) {
+						// Just TAB key, next control
+						if (i == this.tabOrder.length-1) {
+							next = this.tabOrder[0];
+						} else {
+							next = this.tabOrder[i+1];
+						}
+					} else {
+						// TAB+SHIFT, previous control
+						if (i == 0) {
+							next = this.tabOrder[this.tabOrder.length-1];
+						} else {
+							next = this.tabOrder[i-1];
+						}
+					}
+					next.focus();
+					return;
+				}
+			}
+		}
+
+		// ENTER key validate the twist
+		else if (e.keyCode == 13 && ctrl == this.$.password) {
+			this.okButton();
+			e.preventDefault();
+			return;
+		}
 	},
 
 	okButton: function() {
