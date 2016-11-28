@@ -48,7 +48,11 @@ module.exports = {
 				name: account.name
 			}
 			if (error) {
-				result.error = error[0].code + ": " + error[0].message;
+				if (error[0]) {
+					result.error = error[0].code + ": " + error[0].message;
+				} else {
+					result.error = "Unknown error";
+				}
 			} else {
 				result.id = yam.messages[0].id;
 			}
