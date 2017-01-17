@@ -133,7 +133,7 @@ describe('init publisher', function() {
 							assert.equal(3, Object.keys(result.metadata).length);
 							assert.equal('http://images.itnewsinfo.com/lmi/articles/grande/000000052547.jpg', result.metadata.image);
 							assert.equal("Blockchain : l'attaque contre The DAO conduit Ethereum � proposer un fork - Le Monde Informatique", result.metadata.title);
-							assert.equal("L'exploitation d'une faille dans The DAO, organisation autonome d�centralis�e bas�e sur la blockchain d'Ethereum, a permis � un utilisateur de subtili...", result.metadata.description);
+							assert.equal("L'exploitation d'une faille dans The DAO, organisation autonome d�centralis�e bas�e sur la blockchain d'Ethereum, a permis � un utilisateur de...", result.metadata.description);
 							done();
 						});
 					});

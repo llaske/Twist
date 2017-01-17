@@ -41,6 +41,9 @@ module.exports = {
 				message.og_image = twist.metadata.image;
 			}
 		}
+		if (account.keys && account.keys.group_id) {
+			message.group_id = account.keys.group_id;
+		}
 		client.messages.create(message, function(error, yam) {
 			var result = {
 				aid: account._id,
