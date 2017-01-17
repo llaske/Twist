@@ -249,6 +249,9 @@ module.exports = kind({
 			"getServices",
 			{},
 			function(sender, response) {
+				response = response.sort(function(s1, s2) {
+					return s1.provider > s2.provider;
+				});
 				for (var i = 0 ; i < response.length ; i++) {
 					var service = response[i];
 					var component = that.$.services.createComponent(
