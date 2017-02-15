@@ -35,7 +35,7 @@ module.exports = kind({
 			{name: 'twistButton', kind: IconButton, src: '@./images/twistjs.svg', small: false, spotlight: true, ontap: 'twistButtonTapped'},
 			{name: 'count', content: '0', classes: "twist-count"},
 			{name: 'textDecorator', kind: InputDecorator, spotlight: true, classes: "twist-text-decorator", components: [
-				{name: "text", kind: SmartTextArea, onfocus: 'focused', oninput: 'updateCount', onValidate: 'publishTwist', onkeydown: 'tabHandling'}
+				{name: "text", kind: SmartTextArea, onfocus: 'focused', onkeyup: 'updateCount', onValidate: 'publishTwist', onkeydown: 'tabHandling'}
 			]},
 			{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
 				{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused', onkeydown: 'tabHandling'}
