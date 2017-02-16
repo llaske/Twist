@@ -243,5 +243,6 @@ function unformatValue(value) {
 	var unformated = value.replace(/<div class="twist-tag-in-text">/gi, "");
 	unformated = unformated.replace(/<div class='twist-tag-in-text'>/gi, "")
 	unformated = unformated.replace(/<\/div>/gi, "");
+	unformated = unformated.replace('<br>', '');
 	return unformated;
 }
