@@ -521,6 +521,7 @@ module.exports = kind({
 					that.$.url.setValue('');
 					that.resetContent();
 					that.twist = null;
+					document.title = document.title+" [Done!]";
 				}
 				that.$.twistButton.disabled = false;
 			}

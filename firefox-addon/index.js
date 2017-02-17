@@ -1,7 +1,10 @@
 
 var buttons = require('sdk/ui/button/action');
 var tabs = require("sdk/tabs");
+var timers = require("sdk/timers");
+var twistUrl = "http://localhost:8081/?url=";
 
+// Create the Twist button in the toolbar
 var button = buttons.ActionButton({
 	id: "twist",
 	label: "Twist URL",
@@ -13,7 +16,20 @@ var button = buttons.ActionButton({
 	onClick: handleClick
 });
 
+// Close Twist tab done
+function closeTwistDoneTab() {
+	for (let tab of tabs) {
+		if (tab.url.indexOf(twistUrl) == 0) {
+			if (tab.title.indexOf("[Done!]") != -1) {
+				tab.close();
+			}
+		}
+	}
+}
+
+// Handle click on the Twist button
 function handleClick(state) {
-	tabs.open("http://localhost:8081/?url="+encodeURI(tabs.activeTab.url));
+	tabs.open(twistUrl+encodeURI(tabs.activeTab.url));
+	timers.setInterval(closeTwistDoneTab, 500);
 	tabs.activeTab.close();
 }
