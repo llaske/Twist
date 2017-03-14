@@ -51,6 +51,15 @@ module.exports = {
 					});
 				}
 
+				// HACK: Some images could start by / or // instead of protocol
+				if (metadata.image.indexOf('//')==0) {
+					var i = 0;
+					for(; i < metadata.image.length && metadata.image[i] == '/' ; i++);
+					var dotdotslashslash = twist.url.indexOf('://');
+					var scheme = twist.url.substr(0, dotdotslashslash);
+					metadata.image = scheme + "://" + metadata.image.substr(i);
+				}
+
 				// Return metadata
 				twist.metadata = metadata;
 				callback({
