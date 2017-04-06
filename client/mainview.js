@@ -189,7 +189,11 @@ module.exports = kind({
 
 	// Update character count for the twist
 	updateCount: function() {
-		var urlLength = this.$.url.getValue().length;
+		var currentUrl = this.$.url.getValue();
+		var urlLength = currentUrl.length;
+		if (urlLength && currentUrl[0] == '@') {
+			urlLength--;
+		}
 		var textRaw = this.$.text.getRawtext();
 		var textLength = textRaw.length;
 		var authorLength = this.$.author.getValue().length;
@@ -289,9 +293,15 @@ module.exports = kind({
 			this.resetContent();
 		}
 
-		// Ignore null URL
-		if (this.$.url.getValue().length == 0) {
+		// Ignore null URL, leading @ means don't clean url
+		var currentUrl = this.$.url.getValue();
+		var cleanUrl = true;
+		if (currentUrl.length == 0) {
 			return;
+		}
+		if (currentUrl[0] == '@') {
+			cleanUrl = false;
+			currentUrl = currentUrl.substr(1);
 		}
 
 		// Then create the new Twist
@@ -302,10 +312,10 @@ module.exports = kind({
 			"createTwist",
 			{
 				uid: (this.token ? this.token.uid : ''),
-				url: encodeURI(this.$.url.getValue()),
+				url: encodeURI(currentUrl),
 				text: this.$.text.getRawtext(),
 				author: this.$.author.getValue(),
-				cleaned: true,
+				cleaned: cleanUrl,
 				published: false
 			},
 			function(sender, response) {
@@ -473,10 +483,14 @@ module.exports = kind({
 	// Publish the Twist
 	publishTwist: function() {
 		// Update fields
+		var currentUrl = this.$.url.getValue();
+		if (currentUrl.length && currentUrl[0] == '@') {
+			currentUrl = currentUrl.substr(1);
+		}
 		var that = this;
 		var twistUpdate = {
 			uid: this.token.uid,
-			url: encodeURI(this.$.url.getValue()),
+			url: encodeURI(currentUrl),
 			text: this.$.text.getRawtext(),
 			author: this.$.author.getValue(),
 			published: true
