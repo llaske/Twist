@@ -59,24 +59,43 @@ module.exports = kind({
 	},
 
 	keyPressed: function(ctrl, e){
-		// Ignore BACK
-		if (e.charCode == 0) {
+		// ENTER key validate the twist
+		if (e.charCode == 13) {
+			this.doValidate();
+			e.preventDefault();
 			return;
 		}
 
-		// ENTER key validate the twist
-		else if (e.charCode == 13) {
-			this.doValidate();
+		// Compute selection
+		var currentValue = unformatValue(this.getValue());
+		var selection = this.getRawSelection();
+
+		// Process BACK key
+		if (e.charCode == 0) {
+			if (e.keyCode != 8) {
+				return;
+			}
+			if (selection.start == selection.end) {
+				// Remove the previous char
+				if (selection.start != 0) {
+					var newValue = currentValue.substr(0,selection.start-1)+currentValue.substr(selection.start);
+					this.setValue(formatValue(newValue));
+					this.setRawSelection(selection.start-1, selection.start-1);
+				}
+			} else {
+				// Remove all selection
+				var start = Math.min(selection.start, selection.end)-1;
+				var end = Math.max(selection.start, selection.end)+1;
+				var newValue = currentValue.substr(0,start)+currentValue.substr(end);
+				this.setValue(formatValue(newValue));
+				this.setRawSelection(start, start);
+			}
 			e.preventDefault();
 			return;
 		}
 
 		// Get char
 		var char = String.fromCharCode(e.charCode);
-
-		// Compute selection
-		var currentValue = unformatValue(this.getValue());
-		var selection = this.getRawSelection();
 
 		// Hashtag mode handling
 		var hashtagSelection = isInHashtag(currentValue, selection);
