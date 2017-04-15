@@ -292,6 +292,7 @@ module.exports = kind({
 			this.callMethod('deleteTwist');
 			this.resetContent();
 		}
+		this.urlAtStartup = false;
 
 		// Ignore null URL, leading @ means don't clean url
 		var currentUrl = this.$.url.getValue();
