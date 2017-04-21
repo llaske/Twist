@@ -221,7 +221,7 @@ module.exports = {
 				var tags = [];
 				for(var i = 0 ; i < items.length ; i++) {
 					var itemTags = items[i].tags;
-					for (var j = 0 ; j < itemTags.length ; j++) {
+					for (var j = 0 ; itemTags && j < itemTags.length ; j++) {
 						if(tags.indexOf(itemTags[j]) == -1) {
 							tags.push(itemTags[j]);
 						}
