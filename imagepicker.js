@@ -35,7 +35,7 @@ module.exports = {
 				imageTags.forEach(function(image) {
 					// Ignore local image
 					var src = image.attribs.src;
-					if (src.indexOf('data:') == 0) {
+					if (!src || src.indexOf('data:') == 0) {
 						return;
 					}
 
