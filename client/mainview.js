@@ -26,7 +26,7 @@ module.exports = kind({
 	components: [
 		{components: [
 			{content: 'Twist', classes: 'twist-title'},
-			{kind: Icon, classes: 'twist-link', src: '@./images/binoculars.svg', ontap: 'seeOriginalLink'}
+			{name: 'originalLink', kind: Icon, classes: 'twist-link', disabled: true, src: '@./images/link.svg', ontap: 'seeOriginalLink'}
 		]},
 		{classes: 'twist-block twist-properties', components: [
 			{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
@@ -67,6 +67,7 @@ module.exports = kind({
 		if (index != -1) {
 			var href = window.location.href.substr(index+find.length);
 			this.$.url.setValue(decodeURI(href));
+			this.$.originalLink.setDisabled(false);
 			this.urlAtStartup = true;
 		}
 
@@ -323,6 +324,7 @@ module.exports = kind({
 				// Store cleaned URL
 				that.twist = response;
 				that.$.url.setValue(that.twist.url);
+				that.$.originalLink.setDisabled(false);
 
 				// Shorten URL
 				that.callMethod('shortenURL');
@@ -363,6 +365,7 @@ module.exports = kind({
 		// Reset screen content
 		this.resetContent();
 		this.$.url.setValue('');
+		this.$.originalLink.setDisabled(true);
 	},
 
 	// Shorten URL of the twist
@@ -377,6 +380,7 @@ module.exports = kind({
 				if (response.urlShortened) {
 					that.twist.urlShortened = response.urlShortened;
 					that.$.url.setValue(that.twist.urlShortened);
+					that.$.originalLink.setDisabled(false);
 				}
 			}
 		);
