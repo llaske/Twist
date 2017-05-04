@@ -4,6 +4,7 @@ var
 	platform = require('enyo/platform'),
 	Button = require('moonstone/Button'),
 	Input = require('moonstone/Input'),
+	Group = require('enyo/Group'),
 	Icon = require('moonstone/Icon'),
 	IconButton = require('moonstone/IconButton'),
 	InputDecorator = require('moonstone/InputDecorator'),
@@ -48,6 +49,11 @@ module.exports = kind({
 		{classes: 'twist-block twist-settings', components: [
 			{name: 'services', kind: Scroller, classes: 'twist-settings-scroll', components: [
 			]}
+		]},
+		{classes: 'twist-menu', kind: Group, components: [
+			{kind: IconButton, icon: 'plus', active: true, small: false},
+			{kind: IconButton, icon: 'search', small: false},
+			{kind: IconButton, icon: 'gear', small: false},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}
