@@ -229,7 +229,7 @@ function isInHashtag(value, selection) {
 		if (char == '#') {
 			start = i;
 			break;
-		} else if (!char.match(/[a-zA-Z_]/i)) {
+		} else if (!char.match(/[a-zA-Z0-9_]/i)) {
 			return null;
 		}
 	}
@@ -237,7 +237,7 @@ function isInHashtag(value, selection) {
 	var end = -1;
 	for (var i = start+1 ; i < value.length ; i++) {
 		var char = value[i];
-		if (!char.match(/[a-zA-Z_]/i)) {
+		if (!char.match(/[a-zA-Z0-9_]/i)) {
 			break;
 		}
 		end = i;
@@ -252,7 +252,7 @@ function isInHashtag(value, selection) {
 
 // Private: Format/unformat field value
 function formatValue(value) {
-	var formated = value.replace(/#[a-zA-Z_]+/gi,
+	var formated = value.replace(/#[a-zA-Z0-9_]+/gi,
 		function formatTag(tag) {
 			return "<div class='twist-tag-in-text'>"+tag+"</div>";
 	});
