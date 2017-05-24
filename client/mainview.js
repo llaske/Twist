@@ -19,7 +19,8 @@ var
 	SmartTextArea = require('./smarttext'),
 	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
-	Storage = require('./storage');
+	Storage = require('./storage'),
+	SearchView = require('./searchview');
 
 module.exports = kind({
 	name: 'MainView',
@@ -52,7 +53,7 @@ module.exports = kind({
 		]},
 		{classes: 'twist-menu', kind: Group, components: [
 			{kind: IconButton, icon: 'plus', active: true, small: false},
-			{kind: IconButton, icon: 'search', small: false},
+			{kind: IconButton, icon: 'search', small: false, ontap: "showSearchView"},
 			{kind: IconButton, icon: 'gear', small: false},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
@@ -213,6 +214,13 @@ module.exports = kind({
 		}
 		this.$.count.setContent(count);
 		return count;
+	},
+
+	// Display the search view window
+	showSearchView: function() {
+		this.app.resetView = true;
+		this.app.view = new SearchView();
+		this.app.start();
 	},
 
 	// Call an API on the server but first ensure that the token is valid
