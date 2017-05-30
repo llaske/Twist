@@ -19,20 +19,18 @@ var
 	SmartTextArea = require('./smarttext'),
 	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
-	Storage = require('./storage')
-	/*MainView = require('./mainview')*/;
+	Storage = require('./storage'),
+	Panel = require('moonstone/Panel');
 
 module.exports = kind({
 	name: 'SearchView',
-	classes: 'moon enyo-fit',
+	kind: Panel,
+	title: 'Search',
+	headerType: 'medium',
+	autoNumber: true,
+	headerOptions: {inputMode: true, dismissOnEnter: true},
 	components: [
 		{components: [
-			{content: 'Twist', classes: 'twist-title'}
-		]},
-		{classes: 'twist-menu', kind: Group, components: [
-			{kind: IconButton, icon: 'plus', small: false, },
-			{kind: IconButton, icon: 'search', active: true, small: false},
-			{kind: IconButton, icon: 'gear', small: false},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}

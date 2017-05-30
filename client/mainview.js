@@ -20,17 +20,17 @@ var
 	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
 	Storage = require('./storage'),
-	SearchView = require('./searchview');
+	Panel = require('moonstone/Panel');
 
 module.exports = kind({
 	name: 'MainView',
-	classes: 'moon enyo-fit',
+	kind: Panel,
+	title: 'Twist',
+	headerType: 'small',
+	autoNumber: true,
 	components: [
-		{components: [
-			{content: 'Twist', classes: 'twist-title'},
-			{name: 'originalLink', kind: Icon, classes: 'twist-link', disabled: true, src: '@./images/link.svg', ontap: 'seeOriginalLink'}
-		]},
 		{classes: 'twist-block twist-properties', components: [
+			{name: 'originalLink', kind: Icon, classes: 'twist-link', disabled: true, src: '@./images/link.svg', ontap: 'seeOriginalLink'},
 			{name: 'urlDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-url-decorator', components: [
 				{name: 'url', kind: Input, classes: 'twist-url', placeholder: 'URL', doubleTapEnabled: true, oninput: 'updateCount', onfocus: 'focused', onblur: 'createTwistAtStartup', onchange: 'createTwist', ondoubletap: 'resetTwist', onkeydown: 'tabHandling'}
 			]},
@@ -42,19 +42,14 @@ module.exports = kind({
 			{name: 'authorDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-author-decorator', components: [
 				{name: 'author', kind: Input, classes: 'twist-author', placeholder: 'Author', oninput: 'updateCount', onfocus: 'focused', onkeydown: 'tabHandling'}
 			]},
-			{kind: Scroller, classes: 'twist-images-scroll', horizontal: 'hidden', components: [
-				{name: 'images', classes: 'twist-images selection-enabled', components: [
-				]}
-			]},
+		]},
+		{kind: Scroller, classes: 'twist-block twist-images-scroll', horizontal: 'hidden', components: [
+			{name: 'images', classes: 'twist-images selection-enabled', components: [
+			]}
 		]},
 		{classes: 'twist-block twist-settings', components: [
 			{name: 'services', kind: Scroller, classes: 'twist-settings-scroll', components: [
 			]}
-		]},
-		{classes: 'twist-menu', kind: Group, components: [
-			{kind: IconButton, icon: 'plus', active: true, small: false},
-			{kind: IconButton, icon: 'search', small: false, ontap: "showSearchView"},
-			{kind: IconButton, icon: 'gear', small: false},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}
@@ -214,13 +209,6 @@ module.exports = kind({
 		}
 		this.$.count.setContent(count);
 		return count;
-	},
-
-	// Display the search view window
-	showSearchView: function() {
-		this.app.resetView = true;
-		this.app.view = new SearchView();
-		this.app.start();
 	},
 
 	// Call an API on the server but first ensure that the token is valid
