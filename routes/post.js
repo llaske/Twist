@@ -5,11 +5,15 @@ var publisher = require('../publisher');
 var server;
 var db;
 var postsCollection;
+var requestSettings;
+
+var defaultLimit = 100;
 
 module.exports = {
 	init: function(ini, callback) {
 		// Load settings
 		postsCollection = ini.collections.posts;
+		requestSettings = ini.postrequest;
 
 		// Connect to database
 		server = new mongo.Server(ini.database.server, ini.database.port, {auto_reconnect: true});
@@ -179,9 +183,19 @@ module.exports = {
 			query.uid = uid;
 		}
 
+		// Retrieve arguments
+		var limit = parseInt(requestSettings.limit);
+		if (req.query && req.query.limit) {
+			limit = parseInt(req.query.limit);
+		}
+		if (limit == NaN) {
+			limit = defaultLimit;
+		}
+
 		// Retrieve all twists
+		var limit = parseInt(limit);
 		db.collection(postsCollection, function(err, collection) {
-			collection.find(query).toArray(function(err, items) {
+			collection.find(query).limit(limit).toArray(function(err, items) {
 				res.send(items);
 			});
 		});
