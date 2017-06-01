@@ -23,12 +23,11 @@ var
 	Panel = require('moonstone/Panel');
 
 module.exports = kind({
-	name: 'SearchView',
+	name: 'SettingsView',
 	kind: Panel,
-	title: 'Search',
-	headerType: 'medium',
+	title: 'Settings',
+	headerType: 'small',
 	autoNumber: true,
-	headerOptions: {inputMode: true, dismissOnEnter: true},
 	components: [
 		{components: [
 		]},
