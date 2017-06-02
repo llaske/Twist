@@ -198,7 +198,7 @@ module.exports = {
 		// Retrieve all twists
 		var limit = parseInt(limit);
 		db.collection(postsCollection, function(err, collection) {
-			collection.find(query).limit(limit).toArray(function(err, items) {
+			collection.find(query).sort({'createdOn': -1}).limit(limit).toArray(function(err, items) {
 				res.send(items);
 			});
 		});
