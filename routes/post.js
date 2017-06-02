@@ -183,7 +183,7 @@ module.exports = {
 			query.uid = uid;
 		}
 
-		// Retrieve arguments
+		// Retrieve search arguments
 		var limit = defaultLimit;
 		if (requestSettings && requestSettings.limit) {
 			limit = parseInt(requestSettings.limit);
@@ -200,6 +200,9 @@ module.exports = {
 			if (offset < 0 || offset == NaN) {
 				offset = 0;
 			}
+		}
+		if (req.query && (req.query.text !== undefined)) {
+			query.text = {$regex : req.query.text, $options: 'i'};
 		}
 
 		// Retrieve all twists

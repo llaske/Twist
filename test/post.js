@@ -320,7 +320,7 @@ describe('init post', function() {
 							var post = res.value;
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
-							assert.equal(post.text, 'LMI #microsoft');
+							assert.equal(post.text, 'LMI Blockchain #microsoft');
 							assert.equal(post.url, encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'));
 							assert.notEqual(undefined, post._id);
 							metadataTwistId = post._id;
@@ -332,7 +332,7 @@ describe('init post', function() {
 							assert.equal(post.updatedOn.getTime(), post.createdOn.getTime());
 							done();
 						}
-						posts.create({body: {url:encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'), text: 'LMI #microsoft', uid:testUserUID}}, res);
+						posts.create({body: {url:encodeURI('http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html'), text: 'LMI Blockchain #microsoft', uid:testUserUID}}, res);
 					});
 
 					it('should update existing tags', function(done) {
@@ -393,7 +393,7 @@ describe('init post', function() {
 					});
 				});
 
-				describe('#findAll() with limit and offset', function() {
+				describe('#findAll() with limit, offset and text', function() {
 					it('should return 1 item with limit(1)', function(done) {
 						res.done = function() {
 							assert.notEqual(res.value, null);
@@ -425,6 +425,17 @@ describe('init post', function() {
 							done();
 						}
 						posts.findAll({query: {offset: 1}}, res);
+					});
+
+					it('should return one item with text=blockch', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(res.value.length > 0, true);
+							assert.equal(res.value[0].text, 'LMI Blockchain #microsoft');
+							done();
+						}
+						posts.findAll({query: {text: 'blockch'}}, res);
 					});
 				});
 
