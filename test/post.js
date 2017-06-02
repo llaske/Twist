@@ -393,8 +393,8 @@ describe('init post', function() {
 					});
 				});
 
-				describe('#findAll() with limit', function() {
-					it('should return 1', function(done) {
+				describe('#findAll() with limit and offset', function() {
+					it('should return 1 item with limit(1)', function(done) {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
@@ -404,14 +404,27 @@ describe('init post', function() {
 						posts.findAll({query: {limit: 1}}, res);
 					});
 
-					it('should return 2', function(done) {
+					var secondItemId;
+					it('should return 2 items with limit(2)', function(done) {
 						res.done = function() {
 							assert.notEqual(res.value, null);
 							assert.notEqual(res.value, undefined);
 							assert.equal(2, res.value.length);
+							secondItemId = res.value[1].url.toString();
 							done();
 						}
 						posts.findAll({query: {limit: 2}}, res);
+					});
+
+					it('should return 2nd item with offset(1)', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(res.value.length > 0, true);
+							assert.equal(secondItemId, res.value[0].url.toString());
+							done();
+						}
+						posts.findAll({query: {offset: 1}}, res);
 					});
 				});
 

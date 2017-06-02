@@ -191,14 +191,21 @@ module.exports = {
 		if (req.query && (req.query.limit !== undefined)) {
 			limit = parseInt(req.query.limit);
 		}
-		if (limit == NaN) {
+		if (limit < 0 || limit == NaN) {
 			limit = defaultLimit;
+		}
+		var offset = 0;
+		if (req.query && (req.query.offset !== undefined)) {
+			offset = parseInt(req.query.offset);
+			if (offset < 0 || offset == NaN) {
+				offset = 0;
+			}
 		}
 
 		// Retrieve all twists
 		var limit = parseInt(limit);
 		db.collection(postsCollection, function(err, collection) {
-			collection.find(query).sort({'createdOn': -1}).limit(limit).toArray(function(err, items) {
+			collection.find(query).skip(offset).sort({'createdOn': -1}).limit(limit).toArray(function(err, items) {
 				res.send(items);
 			});
 		});
