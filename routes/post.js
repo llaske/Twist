@@ -184,8 +184,11 @@ module.exports = {
 		}
 
 		// Retrieve arguments
-		var limit = parseInt(requestSettings.limit);
-		if (req.query && req.query.limit) {
+		var limit = defaultLimit;
+		if (requestSettings && requestSettings.limit) {
+			limit = parseInt(requestSettings.limit);
+		}
+		if (req.query && (req.query.limit !== undefined)) {
 			limit = parseInt(req.query.limit);
 		}
 		if (limit == NaN) {

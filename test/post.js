@@ -44,7 +44,7 @@ describe('init post', function() {
 							initCount = res.value.length;
 							done();
 						}
-						posts.findAll({}, res);
+						posts.findAll({query: {limit: 0}}, res);
 					});
 				});
 
@@ -56,7 +56,7 @@ describe('init post', function() {
 							initUserCount = res.value.length;
 							done();
 						}
-						posts.findAll({headers: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}, query: {limit: 0}}, res);
 					});
 				});
 
@@ -68,7 +68,7 @@ describe('init post', function() {
 							assert.equal(initCount, res.value.length);
 							done();
 						}
-						posts.findAll({}, res);
+						posts.findAll({query: {limit: 0}}, res);
 					});
 
 					it('should return all twists for the user', function(done) {
@@ -78,7 +78,7 @@ describe('init post', function() {
 							assert.equal(initUserCount, res.value.length);
 							done();
 						}
-						posts.findAll({headers: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}, query: {limit: 0}}, res);
 					});
 				});
 
@@ -145,7 +145,7 @@ describe('init post', function() {
 							assert.equal(initCount+1, res.value.length);
 							done();
 						}
-						posts.findAll({}, res);
+						posts.findAll({query: {limit: 0}}, res);
 					});
 
 					it('should add a new twist to the user', function(done) {
@@ -155,7 +155,7 @@ describe('init post', function() {
 							assert.equal(initUserCount+1, res.value.length);
 							done();
 						}
-						posts.findAll({headers: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}, query: {limit: 0}}, res);
 					});
 				});
 
@@ -393,6 +393,28 @@ describe('init post', function() {
 					});
 				});
 
+				describe('#findAll() with limit', function() {
+					it('should return 1', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(1, res.value.length);
+							done();
+						}
+						posts.findAll({query: {limit: 1}}, res);
+					});
+
+					it('should return 2', function(done) {
+						res.done = function() {
+							assert.notEqual(res.value, null);
+							assert.notEqual(res.value, undefined);
+							assert.equal(2, res.value.length);
+							done();
+						}
+						posts.findAll({query: {limit: 2}}, res);
+					});
+				});
+
 				describe('#author()', function() {
 					it('should do nothing without uid and id', function(done) {
 						res.done = function() {
@@ -539,7 +561,7 @@ describe('init post', function() {
 							assert.equal(initCount, res.value.length);
 							done();
 						}
-						posts.findAll({}, res);
+						posts.findAll({query: {limit: 0}}, res);
 					});
 
 					it('should retrieve init user count', function(done) {
@@ -549,7 +571,7 @@ describe('init post', function() {
 							assert.equal(initUserCount, res.value.length);
 							done();
 						}
-						posts.findAll({headers: {uid: testUserUID}}, res);
+						posts.findAll({headers: {uid: testUserUID}, query: {limit: 0}}, res);
 					});
 
 					it('should update existing tags', function(done) {
