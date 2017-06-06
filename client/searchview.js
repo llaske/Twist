@@ -1,18 +1,8 @@
 var
 	util = require('enyo/utils'),
 	kind = require('enyo/kind'),
-	platform = require('enyo/platform'),
-	Button = require('moonstone/Button'),
-	Input = require('moonstone/Input'),
-	Group = require('enyo/Group'),
-	Icon = require('moonstone/Icon'),
 	IconButton = require('moonstone/IconButton'),
-	InputDecorator = require('moonstone/InputDecorator'),
 	Popup = require('moonstone/Popup'),
-	Item = require('moonstone/Item'),
-	Img = require('enyo/Image'),
-	GridListImageItem = require('moonstone/GridListImageItem'),
-	Overlay = require('moonstone/Overlay'),
 	Scroller = require('moonstone/Scroller'),
 	Spotlight = require('spotlight'),
 	Dialog = require('./dialog'),
@@ -20,7 +10,10 @@ var
 	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
 	Storage = require('./storage'),
-	Panel = require('moonstone/Panel');
+	Panel = require('moonstone/Panel'),
+	Repeater = require('enyo/Repeater'),
+	ImageItem = require('moonstone/ImageItem'),
+	ObjectActionDecorator = require('moonstone/ObjectActionDecorator');
 
 module.exports = kind({
 	name: 'SearchView',
@@ -31,6 +24,16 @@ module.exports = kind({
 	headerOptions: {inputMode: true, dismissOnEnter: true},
 	components: [
 		{components: [
+			{name: "searchresults", kind: Scroller, vertical: "scroll", components: [
+				{name: "posts", kind: Repeater, count:0, onSetupItem: 'setupItem', components: [
+					{kind: ObjectActionDecorator, orientation: 'horizontal', components: [
+						{kind: ImageItem}
+					], actionComponents: [
+						{kind: IconButton, icon: 'ellipsis', name: 'edit'},
+						{kind: IconButton, icon: 'trash', name: 'remove'}
+					]}
+				]}
+			]},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}
@@ -43,12 +46,60 @@ module.exports = kind({
 	create: function() {
 		this.inherited(arguments);
 
+		this.posts = null;
+
 		Spotlight.initialize(this);
 	},
 
 	// First rendering, initialize
 	rendered: function() {
 		this.inherited(arguments);
+
+		this.$.searchresults.hasNode().style.height = (this.getBounds().height-document.getElementById("app_panel_searchView_header").offsetHeight-50)+"px";
+		this.callMethod('getLastPosts');
+	},
+
+	// Set up content
+	setupItem: function (sender, ev) {
+		var post = this.posts[ev.index];
+		ev.item.$.imageItem.setSource(post.image);
+		//ev.item.$.imageItem.setLabel('label ' + ev.index);
+		ev.item.$.imageItem.setLabel(post.text);
+	},
+
+	// Call an API on the server but first ensure that the token is valid
+	callMethod: function(methodName) {
+		var that = this;
+		var method = util.bindSafely(this, methodName);
+		Storage.getValue("token", function(token) {
+			// Check token first
+			that.token = token;
+			if (!that.token) {
+				// Invalid, open auth dialog first
+				that.$.authDialog.setThen(method);
+				that.$.authDialog.show();
+				that.$.authDialog.giveFocus();
+				return;
+			}
+
+			// Token is valid, call method directly
+			method.call(that);
+		});
+	},
+
+	// Retrieve last posts
+	getLastPosts: function() {
+		var that = this;
+		this.sendRequest(
+			"twist",
+			"GET",
+			"getLastPosts",
+			{},
+			function(sender, response) {
+				that.posts = response;
+				that.$.posts.setCount(that.posts.length);
+			}
+		);
 	},
 
 	// Generic method to build and send a request to the server with the header already included
