@@ -8,6 +8,7 @@ var
 	Dialog = require('./dialog'),
 	SmartTextArea = require('./smarttext'),
 	ServiceItem = require('./serviceitem'),
+	Img = require('enyo/Image'),
 	Ajax = require('enyo/Ajax'),
 	Storage = require('./storage'),
 	Panel = require('moonstone/Panel'),
@@ -27,8 +28,14 @@ module.exports = kind({
 			{name: "searchresults", kind: Scroller, vertical: "scroll", components: [
 				{name: "posts", kind: Repeater, count:0, onSetupItem: 'setupItem', components: [
 					{kind: ObjectActionDecorator, orientation: 'horizontal', components: [
-						{kind: ImageItem}
+						{name: 'itemImg', kind: Img, classes: 'search-item-image'},
+						{classes: 'search-item-block', components: [
+							{name: 'itemText', allowHtml: true, classes: 'search-item-text'},
+							{name: 'itemAuthor', classes: 'search-item-author'},
+							{name: 'itemDate', classes: 'search-item-date'}
+						]}
 					], actionComponents: [
+						{kind: IconButton, src: '@./images/linkwhite.svg', ontap: 'seeOriginalLink', name: 'originalLink'},
 						{kind: IconButton, icon: 'ellipsis', name: 'edit'},
 						{kind: IconButton, icon: 'trash', name: 'remove'}
 					]}
@@ -60,11 +67,45 @@ module.exports = kind({
 	},
 
 	// Set up content
-	setupItem: function (sender, ev) {
+	setupItem: function(sender, ev) {
+		// Add tags if not present
 		var post = this.posts[ev.index];
-		ev.item.$.imageItem.setSource(post.image);
-		//ev.item.$.imageItem.setLabel('label ' + ev.index);
-		ev.item.$.imageItem.setLabel(post.text);
+		var text = post.text;
+		if (post.tags.length && text.indexOf('#') == -1) {
+			for (var i = 0 ; i < post.tags.length ; i++) {
+				text += " #" + post.tags[i];
+			}
+		}
+
+		// Format tags in text
+		var formatted = "";
+		var inTag = false;
+		for (var i = 0 ; i < text.length ; i++) {
+			var char = text[i];
+			if (inTag && !char.match(/[a-zA-Z0-9_]/i)) {
+				formatted += "</strong>";
+			}
+			if (char == '#') {
+				inTag = true;
+				formatted += "<strong class='strong'>#";
+				continue;
+			}
+			formatted += char;
+		}
+		if (inTag) {
+			formatted += "</strong>";
+		}
+
+		// Set content
+		ev.item.$.itemImg.setSrc(post.image);
+		ev.item.$.itemText.setContent(formatted);
+		ev.item.$.itemAuthor.setContent(post.author);
+		ev.item.$.itemDate.setContent(timestampToElapsedString(post.createdOn));
+	},
+
+	// Open a new window with the original link
+	seeOriginalLink: function(sender, ev) {
+		window.open(this.posts[ev.index].url);
 	},
 
 	// Call an API on the server but first ensure that the token is valid
@@ -141,3 +182,60 @@ module.exports = kind({
 		}
 	}
 });
+
+
+
+function timestampToElapsedString(timestamp) {
+	var l10n = {
+		SecondsAgo: 'Seconds ago',
+		Ago: ' ago',
+		Minutes_one: 'minute',
+		Minutes_other: 'minutes',
+		Hours_one: 'hour',
+		Hours_other: 'hours',
+		Days_one: 'day',
+		Days_other: 'days',
+		Weeks_one: 'week',
+		Weeks_other: 'weeks',
+		Months_one: 'month',
+		Months_other: 'months',
+		Years_one: 'year',
+		Years_other: 'years'
+	};
+	var units = [{name:'Years', factor:356 * 24 * 60 * 60},
+				 {name:'Months', factor:30 * 24 * 60 * 60},
+				 {name:'Weeks', factor:7 * 24 * 60 * 60},
+				 {name:'Days', factor:24 * 60 * 60},
+				 {name:'Hours', factor:60 * 60},
+				 {name:'Minutes', factor:60}];
+	var maxlevel = 1;
+	var levels = 0;
+	var time_period = '';
+	var time_stamp = (new Date(timestamp).getTime());
+	var elapsed_seconds = ((new Date().getTime()) - time_stamp)/1000;
+	for (var i = 0; i < units.length ; i++) {
+		var factor = units[i].factor;
+
+		var elapsed_units = Math.floor(elapsed_seconds / factor);
+		if (elapsed_units > 0) {
+			if (levels > 0)
+				time_period += ',';
+
+			time_period += ' '+elapsed_units+" "+(elapsed_units==1?l10n[units[i].name+"_one"]:l10n[units[i].name+"_other"]);
+
+			elapsed_seconds -= elapsed_units * factor;
+		}
+
+		if (time_period != '')
+			levels += 1;
+
+		if (levels == maxlevel)
+			break;
+	}
+
+	if (levels == 0) {
+		return l10n["SecondsAgo"];
+	}
+
+	return time_period+l10n["Ago"];
+}
