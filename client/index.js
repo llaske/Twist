@@ -20,9 +20,9 @@ var TwistPanel = kind({
 	classes: 'moon enyo-fit',
 	components: [
 		{name: 'panels', kind: Panels, classes: 'enyo-fit', pattern: 'activity', hasCloseButton: false, components: [
-			{kind: MainView},
-			{kind: SearchView},
-			{kind: SettingsView}
+			{name: 'mainView', kind: MainView},
+			{name: 'searchView', kind: SearchView, onInputHeaderInput: 'searchChanged'},
+			{name: 'settingsView', kind: SettingsView}
 		]},
 		{classes: 'twist-menu', kind: Group, components: [
 			{name: 'post', kind: IconButton, icon: 'plus', active: true, small: false, ontap: "showPostView"},
@@ -44,6 +44,10 @@ var TwistPanel = kind({
 	showSettingsView: function() {
 		this.$.panels.setIndex(2);
 		this.$.search.setActive(true);
+	},
+
+	searchChanged: function(sender, ev) {
+		this.$.searchView.searchChanged(sender, ev);
 	},
 });
 

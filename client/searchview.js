@@ -71,7 +71,7 @@ module.exports = kind({
 		// Add tags if not present
 		var post = this.posts[ev.index];
 		var text = post.text;
-		if (post.tags.length && text.indexOf('#') == -1) {
+		if (post.tags && post.tags.length && text.indexOf('#') == -1) {
 			for (var i = 0 ; i < post.tags.length ; i++) {
 				text += " #" + post.tags[i];
 			}
@@ -99,13 +99,21 @@ module.exports = kind({
 		// Set content
 		ev.item.$.itemImg.setSrc(post.image);
 		ev.item.$.itemText.setContent(formatted);
-		ev.item.$.itemAuthor.setContent(post.author);
+		if (post.author) {
+			ev.item.$.itemAuthor.setContent(post.author);
+		}
 		ev.item.$.itemDate.setContent(timestampToElapsedString(post.createdOn));
 	},
 
 	// Open a new window with the original link
 	seeOriginalLink: function(sender, ev) {
 		window.open(this.posts[ev.index].url);
+	},
+
+	// Search text changed
+	searchChanged: function(sender, ev) {
+		this.searchText = ev.originator.getValue();
+		this.callMethod('getPostsByText');
 	},
 
 	// Call an API on the server but first ensure that the token is valid
@@ -135,6 +143,21 @@ module.exports = kind({
 			"twist",
 			"GET",
 			"getLastPosts",
+			{},
+			function(sender, response) {
+				that.posts = response;
+				that.$.posts.setCount(that.posts.length);
+			}
+		);
+	},
+
+	// Retrieve post by text
+	getPostsByText: function() {
+		var that = this;
+		this.sendRequest(
+			"twist?text="+this.searchText,
+			"GET",
+			"getPostsByText",
 			{},
 			function(sender, response) {
 				that.posts = response;
