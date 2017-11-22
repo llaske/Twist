@@ -1,0 +1,31 @@
+{
+	"manifest_version": 2,
+	"name": "Twist",
+	"version": "0.0.1",
+	"author": "Lionel Laské",
+	"description": "Add on for Twist tool",
+	"homepage_url": "http://twist.red",
+	"applications": {
+		"gecko": {
+			"id": "webextension@twist.red"
+		}
+	},
+	"icons": {
+		"48": "icons/twist-48.png",
+		"96": "icons/twist-96.png"
+	},
+
+	"permissions": [
+		"alarms",
+		"tabs"
+ 	],
+
+	"browser_action": {
+		"default_icon": "icons/twist-32.png",
+		"default_title": "Twist"
+	},
+
+	"background": {
+		"scripts": ["background.js"]
+	}
+}
