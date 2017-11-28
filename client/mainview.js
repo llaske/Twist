@@ -68,9 +68,11 @@ module.exports = kind({
 		this.urlAtStartup = false;
 		if (index != -1) {
 			var href = window.location.href.substr(index+find.length);
-			this.$.url.setValue(decodeURI(href));
-			this.$.originalLink.setDisabled(false);
-			this.urlAtStartup = true;
+			if (href.substr(0, 6) != "about:" && href.substr(0, 9) != "chrome://") {
+				this.$.url.setValue(decodeURI(href));
+				this.$.originalLink.setDisabled(false);
+				this.urlAtStartup = true;
+			}
 		}
 
 		Spotlight.initialize(this);
