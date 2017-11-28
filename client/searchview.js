@@ -40,7 +40,7 @@ module.exports = kind({
 						{kind: IconButton, icon: 'trash', name: 'remove'}
 					]}
 				]}
-			]},
+			], onScroll: 'scrolled'},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}
@@ -54,6 +54,7 @@ module.exports = kind({
 		this.inherited(arguments);
 
 		this.posts = null;
+		this.itemsLimit = 10;
 
 		Spotlight.initialize(this);
 	},
@@ -70,7 +71,7 @@ module.exports = kind({
 	setupItem: function(sender, ev) {
 		// Add tags if not present
 		var post = this.posts[ev.index];
-		var text = post.text;
+		var text = post.text || "";
 		if (post.tags && post.tags.length && text.indexOf('#') == -1) {
 			for (var i = 0 ; i < post.tags.length ; i++) {
 				text += " #" + post.tags[i];
@@ -116,6 +117,19 @@ module.exports = kind({
 		this.callMethod('getPostsByText');
 	},
 
+	// Load more items when scrolled
+	scrolled: function(sender, ev) {
+		var scrollBounds = ev.scrollBounds;
+		if (scrollBounds.top == scrollBounds.maxTop) {
+			this.itemsLimit += 10;
+			if (this.searchText && this.searchText.length > 1) {
+				this.callMethod('getPostsByText');
+			} else {
+				this.callMethod('getLastPosts');
+			}
+		}
+	},
+
 	// Call an API on the server but first ensure that the token is valid
 	callMethod: function(methodName) {
 		var that = this;
@@ -140,7 +154,7 @@ module.exports = kind({
 	getLastPosts: function() {
 		var that = this;
 		this.sendRequest(
-			"twist",
+			"twist?limit="+this.itemsLimit,
 			"GET",
 			"getLastPosts",
 			{},
@@ -155,7 +169,7 @@ module.exports = kind({
 	getPostsByText: function() {
 		var that = this;
 		this.sendRequest(
-			"twist?text="+this.searchText,
+			"twist?text="+this.searchText+"&limit="+this.itemsLimit,
 			"GET",
 			"getPostsByText",
 			{},
