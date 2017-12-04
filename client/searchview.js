@@ -1,6 +1,7 @@
 var
 	util = require('enyo/utils'),
 	kind = require('enyo/kind'),
+	Button = require('moonstone/Button'),
 	IconButton = require('moonstone/IconButton'),
 	Popup = require('moonstone/Popup'),
 	Scroller = require('moonstone/Scroller'),
@@ -37,13 +38,18 @@ module.exports = kind({
 					], actionComponents: [
 						{kind: IconButton, src: '@./images/linkwhite.svg', ontap: 'seeOriginalLink', name: 'originalLink'},
 						{kind: IconButton, icon: 'ellipsis', name: 'edit'},
-						{kind: IconButton, icon: 'trash', name: 'remove'}
+						{kind: IconButton, icon: 'trash', ontap: 'removeItem', name: 'remove'}
 					]}
 				]}
 			], onScroll: 'scrolled'},
 		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
-		{name: 'errorPopup', kind: Popup, content: ''}
+		{name: 'errorPopup', kind: Popup, content: ''},
+		{name: 'confirmPopup', kind: Popup, components: [
+			{content: 'Are you sure?'},
+			{kind: Button, content: 'OK', ontap: 'okConfirmPopup'},
+			{kind: Button, content: 'Cancel', ontap: 'cancelConfirmPopup'}
+		]}
 	],
 	published: {
 		token: null
@@ -55,6 +61,7 @@ module.exports = kind({
 
 		this.posts = null;
 		this.itemsLimit = 10;
+		this.selected = null;
 
 		Spotlight.initialize(this);
 	},
@@ -111,6 +118,33 @@ module.exports = kind({
 		window.open(this.posts[ev.index].url);
 	},
 
+	// Remove the items
+	removeItem: function(sender, ev) {
+		this.$.confirmPopup.setContent('Are you sure?');
+		this.$.confirmPopup.show();
+		this.selected = this.posts[ev.index];
+	},
+
+	okConfirmPopup: function(sender, ev) {
+		if (this.selected) {
+			var that = this;
+			this.sendRequest(
+				"twist/"+this.selected._id,
+				"DELETE",
+				"removeItem",
+				{},
+				function(sender, response) {
+					that.refreshSearch();
+				}
+			);
+		}
+		this.$.confirmPopup.hide();
+	},
+
+	cancelConfirmPopup: function(sender, ev) {
+		this.$.confirmPopup.hide();
+	},
+
 	// Search text changed
 	searchChanged: function(sender, ev) {
 		this.searchText = ev.originator.getValue();
@@ -122,11 +156,15 @@ module.exports = kind({
 		var scrollBounds = ev.scrollBounds;
 		if (scrollBounds.top == scrollBounds.maxTop) {
 			this.itemsLimit += 10;
-			if (this.searchText && this.searchText.length > 1) {
-				this.callMethod('getPostsByText');
-			} else {
-				this.callMethod('getLastPosts');
-			}
+			this.refreshSearch();
+		}
+	},
+
+	refreshSearch: function() {
+		if (this.searchText && this.searchText.length > 1) {
+			this.callMethod('getPostsByText');
+		} else {
+			this.callMethod('getLastPosts');
 		}
 	},
 
