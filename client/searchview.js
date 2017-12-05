@@ -207,7 +207,7 @@ module.exports = kind({
 	getPostsByText: function() {
 		var that = this;
 		this.sendRequest(
-			"twist?text="+this.searchText+"&limit="+this.itemsLimit,
+			"twist?text="+encodeURIComponent(this.searchText)+"&limit="+this.itemsLimit,
 			"GET",
 			"getPostsByText",
 			{},

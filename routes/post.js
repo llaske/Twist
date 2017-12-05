@@ -202,7 +202,7 @@ module.exports = {
 			}
 		}
 		if (req.query && (req.query.text !== undefined)) {
-			query.text = {$regex : req.query.text, $options: 'i'};
+			query.$or = [{'text': {'$regex' : req.query.text, '$options': 'i'}}, {'tags': {'$regex' : req.query.text, '$options': 'i'}}];
 		}
 
 		// Retrieve all twists
