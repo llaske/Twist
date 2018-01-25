@@ -270,6 +270,7 @@ module.exports = kind({
 							aid: service._id,
 							account: service.name,
 							active: service.activated,
+							allowCheck: true,
 							service: service,
 							onStateChanged: "serviceStateUpdated"
 						},

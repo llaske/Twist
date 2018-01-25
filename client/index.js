@@ -43,7 +43,7 @@ var TwistPanel = kind({
 
 	showSettingsView: function() {
 		this.$.panels.setIndex(2);
-		this.$.search.setActive(true);
+		this.$.settings.setActive(true);
 	},
 
 	searchChanged: function(sender, ev) {

@@ -15,13 +15,15 @@ module.exports = kind({
 		account: '',
 		active: false,
 		service: null,
-		error: ''
+		error: '',
+		allowCheck: false,
 	},
 	handlers: {
-		ontap: 'reverseSelection'
+		ontap: 'handleClick'
 	},
 	events: {
 		onStateChanged: '',
+		onClicked: '',
 		onmouseover: 'showTooltip'
 	},
 	components: [
@@ -55,9 +57,15 @@ module.exports = kind({
 		this.$.iconActive.setShowing(this.active);
 	},
 
-	reverseSelection: function(sender) {
-		this.$.iconActive.setShowing(!this.$.iconActive.getShowing());
-		this.doStateChanged();
+	handleClick: function(sender) {
+		if (this.allowCheck) {
+			// In check mode, reverse selection
+			this.$.iconActive.setShowing(!this.$.iconActive.getShowing());
+			this.doStateChanged();
+		} else {
+			// Else just process click
+			this.doClicked();
+		}
 	},
 
 	errorChanged: function() {

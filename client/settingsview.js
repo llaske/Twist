@@ -31,6 +31,10 @@ module.exports = kind({
 	components: [
 		{components: [
 		]},
+		{classes: 'twist-block twist-settings', components: [
+			{name: 'services', kind: Scroller, classes: 'twist-settings-scrolledit', components: [
+			]}
+		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
 		{name: 'errorPopup', kind: Popup, content: ''}
 	],
@@ -43,11 +47,76 @@ module.exports = kind({
 		this.inherited(arguments);
 
 		Spotlight.initialize(this);
+
+		this.services = [];
+		this.callMethod("getServices");
 	},
 
 	// First rendering, initialize
 	rendered: function() {
 		this.inherited(arguments);
+
+		this.$.services.applyStyle("height", -200+this.hasNode().offsetHeight+"px");
+	},
+
+
+	// Retrieve all services for user
+	getServices: function() {
+		var that = this;
+		this.sendRequest(
+			"service",
+			"GET",
+			"getServices",
+			{},
+			function(sender, response) {
+				response = response.sort(function(s1, s2) {
+					return s1.provider > s2.provider;
+				});
+				for (var i = 0 ; i < response.length ; i++) {
+					var service = response[i];
+					var component = that.$.services.createComponent(
+						{
+							kind: ServiceItem,
+							provider: service.provider,
+							aid: service._id,
+							account: service.name,
+							active: false,
+							service: service,
+							onClicked: "serviceDetail"
+						},
+						{owner: that}
+					);
+					that.services.push(component);
+					component.render();
+				}
+			}
+		);
+	},
+
+	// Show service detail
+	serviceDetail: function(sender) {
+		var service = sender.service;
+		console.log(service);
+	},
+
+	// Call an API on the server but first ensure that the token is valid
+	callMethod: function(methodName) {
+		var that = this;
+		var method = util.bindSafely(this, methodName);
+		Storage.getValue("token", function(token) {
+			// Check token first
+			that.token = token;
+			if (!that.token) {
+				// Invalid, open auth dialog first
+				that.$.authDialog.setThen(method);
+				that.$.authDialog.show();
+				that.$.authDialog.giveFocus();
+				return;
+			}
+
+			// Token is valid, call method directly
+			method.call(that);
+		});
 	},
 
 	// Generic method to build and send a request to the server with the header already included
