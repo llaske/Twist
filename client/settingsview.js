@@ -16,11 +16,13 @@ var
 	Scroller = require('moonstone/Scroller'),
 	Spotlight = require('spotlight'),
 	Dialog = require('./dialog'),
+	Repeater = require('enyo/Repeater'),
 	SmartTextArea = require('./smarttext'),
 	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
 	Storage = require('./storage'),
-	Panel = require('moonstone/Panel');
+	Panel = require('moonstone/Panel'),
+	ObjectActionDecorator = require('moonstone/ObjectActionDecorator');
 
 module.exports = kind({
 	name: 'SettingsView',
@@ -35,8 +37,45 @@ module.exports = kind({
 			{name: 'services', kind: Scroller, classes: 'twist-settings-scrolledit', components: [
 			]}
 		]},
+		{name: 'serviceDetail', classes: 'twist-block twist-service-detail', showing: false, components: [
+			{name: 'nameDecorator', kind: InputDecorator, spotlight: true, classes: 'twist-servicename-decorator', components: [
+				{name: 'name', kind: Input, classes: 'twist-servicename', placeholder: 'name'}
+			]},
+			{kind: IconButton, icon: 'check', name: 'save', small: true, classes: 'twist-service-save', ontap: 'saveService'},
+			{kind: IconButton, icon: 'trash', name: 'remove', small: true, classes: 'twist-service-remove', ontap: 'removeService'},
+			{name: 'authorsuggest', classes: 'twist-service-authorsuggest', show: false, components: [
+				{name: "authorsresults", kind: Scroller, vertical: "scroll", components: [
+					{name: "authors", kind: Repeater, count:0, onSetupItem: 'setupAuthor', components: [
+						{kind: ObjectActionDecorator, classes: 'service-author-item', orientation: 'horizontal', components: [
+							{name: 'itemPrefix', classes: 'service-author-item-prefix'},
+							{name: 'itemAuthor', classes: 'service-author-item-author'},
+						], actionComponents: [
+							{kind: IconButton, icon: 'plus', small: true, classes: 'service-author-addbutton', ontap: 'addAuthor', name: 'addAuthor'},
+							{kind: IconButton, icon: 'ellipsis', small: true, classes: 'service-author-addbutton', ontap: 'editAuthor', name: 'EditAuthor'},
+							{kind: IconButton, icon: 'trash', small: true, classes: 'service-author-removebutton', ontap: 'removeAuthor', name: 'removeAuthor'}
+						]}
+					]}
+				]},
+			]},
+		]},
 		{name: 'authDialog', kind: Dialog, onHide: 'authenticated'},
-		{name: 'errorPopup', kind: Popup, content: ''}
+		{name: 'errorPopup', kind: Popup, content: ''},
+		{name: 'confirmPopup', kind: Popup, components: [
+			{content: 'Are you sure?'},
+			{kind: Button, content: 'OK', ontap: 'okConfirmPopup'},
+			{kind: Button, content: 'Cancel', ontap: 'cancelConfirmPopup'}
+		]},
+		{name: 'dialogPopup', kind: Popup, components: [
+			{name: 'dialogPopupMessage', showing: false, content: 'Are you sure?'},
+			{name: 'dialogPopupPrefix', kind: InputDecorator, components: [
+				{name: 'inputPrefix', kind: Input, placeholder: 'http://...'}
+			]},
+			{name: 'dialogPopupAuthor', kind: InputDecorator, components: [
+				{name: 'inputAuthor', kind: Input, placeholder: '@someone'}
+			]},
+			{kind: Button, content: 'OK', ontap: 'okAuthorButton'},
+			{kind: Button, content: 'Cancel', ontap: 'cancelAuthorButton'}
+		]}
 	],
 	published: {
 		token: null
@@ -49,6 +88,8 @@ module.exports = kind({
 		Spotlight.initialize(this);
 
 		this.services = [];
+		this.currentService = null;
+		this.currentMode = '';
 		this.callMethod("getServices");
 	},
 
@@ -57,6 +98,7 @@ module.exports = kind({
 		this.inherited(arguments);
 
 		this.$.services.applyStyle("height", -200+this.hasNode().offsetHeight+"px");
+		this.$.authorsresults.hasNode().style.height = (this.getBounds().height-document.getElementById("app_panel_settingsView_header").offsetHeight-120)+"px";
 	},
 
 
@@ -95,8 +137,96 @@ module.exports = kind({
 
 	// Show service detail
 	serviceDetail: function(sender) {
-		var service = sender.service;
-		console.log(service);
+		var service = this.currentService = sender.service;
+		this.$.name.setValue(service.name);
+		this.$.serviceDetail.setShowing(true);
+		this.$.authorsuggest.setShowing(service.provider == 'authorsuggest');
+		if (service.provider == 'authorsuggest') {
+			this.$.authors.setCount(service.keys.authors.length);
+		}
+	},
+
+	// Update service change
+	saveService: function() {
+		this.sendRequest(
+			"service/"+this.currentService._id,
+			"PUT",
+			"updateService",
+			{keys: JSON.stringify(this.currentService.keys)},
+			function(sender, response) {
+			}
+		);
+	},
+
+	// Remove service
+	removeService: function() {
+		this.$.dialogPopupMessage.setShowing(true);
+		this.$.dialogPopupAuthor.setShowing(false);
+		this.$.dialogPopupPrefix.setShowing(false);
+		this.currentMode = 'removeService';
+		this.$.dialogPopup.show();
+	},
+
+	// Author suggest type handling
+	setupAuthor: function(sender, ev) {
+		var author = this.currentService.keys.authors[ev.index];
+		var prefix = this.currentService.keys.prefix[ev.index];
+		ev.item.$.itemAuthor.setContent(author);
+		ev.item.$.itemPrefix.setContent(prefix);
+	},
+
+	addAuthor: function(sender, ev) {
+		this.$.dialogPopupMessage.setShowing(false);
+		this.$.dialogPopupAuthor.setShowing(true);
+		this.$.dialogPopupPrefix.setShowing(true);
+		this.$.inputPrefix.setValue("");
+		this.$.inputAuthor.setValue("");
+		this.currentMode = 'addAuthor';
+		this.currentIndex = ev.index;
+		this.$.dialogPopup.show();
+	},
+
+	editAuthor: function(sender, ev) {
+		this.$.dialogPopupMessage.setShowing(false);
+		this.$.dialogPopupAuthor.setShowing(true);
+		this.$.dialogPopupPrefix.setShowing(true);
+		this.$.inputPrefix.setValue(this.currentService.keys.prefix[ev.index]);
+		this.$.inputAuthor.setValue(this.currentService.keys.authors[ev.index]);
+		this.currentMode = 'editAuthor';
+		this.currentIndex = ev.index;
+		this.$.dialogPopup.show();
+	},
+
+	removeAuthor: function(sender, ev) {
+		this.$.dialogPopupMessage.setShowing(true);
+		this.$.dialogPopupAuthor.setShowing(false);
+		this.$.dialogPopupPrefix.setShowing(false);
+		this.currentMode = 'removeAuthor';
+		this.currentIndex = ev.index;
+		this.$.dialogPopup.show();
+	},
+
+	okAuthorButton: function() {
+		if (this.currentMode == 'removeService') {
+			// Call delete service
+		} else if (this.currentMode == 'addAuthor') {
+			this.currentService.keys.authors.push(this.$.inputAuthor.getValue());
+			this.currentService.keys.prefix.push(this.$.inputPrefix.getValue());
+			this.$.authors.setCount(this.currentService.keys.authors.length);
+		} else if (this.currentMode == 'editAuthor') {
+			this.currentService.keys.authors[this.currentIndex] = this.$.inputAuthor.getValue();
+			this.currentService.keys.prefix[this.currentIndex] = this.$.inputPrefix.getValue();
+			this.$.authors.setCount(this.currentService.keys.authors.length);
+		} else if (this.currentMode == 'removeAuthor') {
+			this.currentService.keys.authors.splice(this.currentIndex, 1);
+			this.currentService.keys.prefix.splice(this.currentIndex, 1);
+			this.$.authors.setCount(this.currentService.keys.authors.length);
+		}
+		this.$.dialogPopup.hide();
+	},
+
+	cancelAuthorButton: function() {
+		this.$.dialogPopup.hide();
 	},
 
 	// Call an API on the server but first ensure that the token is valid
