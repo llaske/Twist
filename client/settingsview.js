@@ -42,7 +42,7 @@ module.exports = kind({
 				{name: 'name', kind: Input, classes: 'twist-servicename', placeholder: 'name'}
 			]},
 			{kind: IconButton, icon: 'check', name: 'save', small: true, classes: 'twist-service-save', ontap: 'saveService'},
-			{kind: IconButton, icon: 'trash', name: 'remove', small: true, classes: 'twist-service-remove', ontap: 'removeService'},
+			{kind: IconButton, icon: 'closex', name: 'remove', small: true, classes: 'twist-service-cancel', ontap: 'cancelService'},
 			{name: 'authorsuggest', classes: 'twist-service-authorsuggest', show: false, components: [
 				{name: "authorsresults", kind: Scroller, vertical: "scroll", components: [
 					{name: "authors", kind: Repeater, count:0, onSetupItem: 'setupAuthor', components: [
@@ -122,9 +122,12 @@ module.exports = kind({
 							provider: service.provider,
 							aid: service._id,
 							account: service.name,
-							active: false,
+							allowCheck: false,
+							actions: true,
 							service: service,
-							onClicked: "serviceDetail"
+							onActionAddClicked: "",
+							onActionEditClicked: "editService",
+							onActionRemoveClicked: "removeService",
 						},
 						{owner: that}
 					);
@@ -136,7 +139,7 @@ module.exports = kind({
 	},
 
 	// Show service detail
-	serviceDetail: function(sender) {
+	editService: function(sender) {
 		var service = this.currentService = sender.service;
 		this.$.name.setValue(service.name);
 		this.$.serviceDetail.setShowing(true);
@@ -146,14 +149,22 @@ module.exports = kind({
 		}
 	},
 
+	cancelService: function(sender) {
+		this.$.serviceDetail.setShowing(false);
+		this.$.authorsuggest.setShowing(false);
+	},
+
 	// Update service change
 	saveService: function() {
+		var that = this;
 		this.sendRequest(
 			"service/"+this.currentService._id,
 			"PUT",
 			"updateService",
 			{keys: JSON.stringify(this.currentService.keys)},
 			function(sender, response) {
+				that.$.serviceDetail.setShowing(false);
+				that.$.authorsuggest.setShowing(false);
 			}
 		);
 	},
