@@ -4,17 +4,17 @@
 	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
-		"twitter": "latest",
-		"fb": "latest",
-		"yammer-rest-api-client": "latest",
-		"htmlparser": "latest",
-		"soupselect": "latest",
-		"express": "latest",
-		"body-parser": "latest",
-		"morgan": "latest",
-		"mongodb": "latest",
-		"ini": "latest",
-		"jwt-simple": "latest",
-		"http": "latest"
+		"twitter": "1.3.x",
+		"fb": "1.1.x",
+		"yammer-rest-api-client": "0.2.x",
+		"htmlparser": "1.7.x",
+		"soupselect": "0.2.x",
+		"express": "4.14.x",
+		"body-parser": "1.15.x",
+		"morgan": "1.7.x",
+		"mongodb": "2.1.x",
+		"ini": "1.3.x",
+		"jwt-simple": "0.5.x",
+		"http": "0.0.x"
 	}
 }
