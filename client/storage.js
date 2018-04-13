@@ -51,7 +51,7 @@ module.exports = {
 			try {
 				if (typeof chrome != 'undefined' && chrome.app && chrome.app.runtime) {
 					this.values[key] = null;
-					chrome.store.remove(key, callback);
+					chrome.storage.remove(key, callback);
 				} else {
 					window.localStorage.removeItem(key);
 					callback(key);
