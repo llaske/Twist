@@ -1,6 +1,5 @@
 # Enyo
 client/.enyocache
-client/.enyoconfig
 client/.npmignore
 client/dist
 
