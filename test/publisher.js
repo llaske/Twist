@@ -119,7 +119,7 @@ describe('init publisher', function() {
 							assert.notEqual(result.metadata, null);
 							assert.notEqual(result.metadata, undefined);
 							assert.equal(3, Object.keys(result.metadata).length);
-							assert.equal('https://static.latribune.fr/full_width/581430/austin.png', result.metadata.image);
+							assert.equal('https://static.latribune.fr/full_width/581430/austin.jpg', result.metadata.image);
 							assert.equal("Sans Uber et Lyft, une ville texane tente de s&#039;organiser différemment", result.metadata.title);
 							assert.equal("A Austin, au Texas, des réglementations strictes ont été mises en place en mai dernier vis à vis des compagnies de VTC. Suite à cela Uber et Lyft ont quitté la ville et de nouvelles méthodes contournent ces interdictions.", result.metadata.description);
 							done();
@@ -127,11 +127,11 @@ describe('init publisher', function() {
 					});
 
 					it('should get image, title and description', function(done) {
-						publisher.getMetadata({url: "http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
+						publisher.getMetadata({url: "https://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
 							assert.notEqual(result.metadata, null);
 							assert.notEqual(result.metadata, undefined);
 							assert.equal(3, Object.keys(result.metadata).length);
-							assert.equal('http://images.itnewsinfo.com/lmi/articles/grande/000000052547.jpg', result.metadata.image);
+							assert.equal('https://images.itnewsinfo.com/lmi/articles/grande/000000052547.jpg', result.metadata.image);
 							assert.equal("Blockchain : l'attaque contre The DAO conduit Ethereum � proposer un fork - Le Monde Informatique", result.metadata.title);
 							assert.equal("L'exploitation d'une faille dans The DAO, organisation autonome d�centralis�e bas�e sur la blockchain d'Ethereum, a permis � un utilisateur de...", result.metadata.description);
 							done();
@@ -161,7 +161,7 @@ describe('init publisher', function() {
 					});
 
 					it('should return images, test with LMI', function(done) {
-						publisher.getImages({url: "http://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
+						publisher.getImages({url: "https://www.lemondeinformatique.fr/actualites/lire-blockchain-l-attaque-contre-dao-conduit-ethereum-a-proposer-un-fork-65194.html"}, function(result) {
 							assert.notEqual(result.images, null);
 							assert.notEqual(result.images, undefined);
 							assert.equal(true, result.images.length > 1);

@@ -57,7 +57,7 @@ module.exports = {
 		}
 
 		// Get status
-		facebook.api(twist.id, 'get', function (res) {
+		facebook.api(twist.id, 'get', {fields: "message,link"}, function (res) {
 			if (!res || res.error) {
 				result.error = res.error.code + ": " + res.error.message;
 			} else {
