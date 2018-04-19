@@ -1,5 +1,5 @@
 var
-	util = require('enyo/utils'),
+	utils = require('enyo/utils'),
 	kind = require('enyo/kind'),
 	Button = require('moonstone/Button'),
 	Input = require('moonstone/Input'),
@@ -7,7 +7,8 @@ var
 	Dialog = require('moonstone/Dialog'),
 	Popup = require('moonstone/Popup'),
 	Ajax = require('enyo/Ajax'),
-	Storage = require('./storage');
+	Storage = require('./storage'),
+	util = require('./util');
 
 module.exports = kind({
 	name: 'dialog',
@@ -89,13 +90,13 @@ module.exports = kind({
 			return;
 
 		var ajax = new Ajax({
-			url: "http://localhost:8081/login",
+			url: util.getServerUrl()+"login",
 			method: "POST",
 			handleAs: "json",
 			postBody: {username: login, password: password}
 		});
-		ajax.response(util.bindSafely(this, 'loginResponse'));
-		ajax.error(util.bindSafely(this, 'loginFail'));
+		ajax.response(utils.bindSafely(this, 'loginResponse'));
+		ajax.error(utils.bindSafely(this, 'loginFail'));
 		ajax.go();
 	},
 

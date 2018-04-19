@@ -1,5 +1,5 @@
 var
-	util = require('enyo/utils'),
+	utils = require('enyo/utils'),
 	kind = require('enyo/kind'),
 	platform = require('enyo/platform'),
 	Button = require('moonstone/Button'),
@@ -21,6 +21,7 @@ var
 	ServiceItem = require('./serviceitem'),
 	Ajax = require('enyo/Ajax'),
 	Storage = require('./storage'),
+	util = require('./util'),
 	Panel = require('moonstone/Panel'),
 	ObjectActionDecorator = require('moonstone/ObjectActionDecorator');
 
@@ -243,7 +244,7 @@ module.exports = kind({
 	// Call an API on the server but first ensure that the token is valid
 	callMethod: function(methodName) {
 		var that = this;
-		var method = util.bindSafely(this, methodName);
+		var method = utils.bindSafely(this, methodName);
 		Storage.getValue("token", function(token) {
 			// Check token first
 			that.token = token;
@@ -263,7 +264,7 @@ module.exports = kind({
 	// Generic method to build and send a request to the server with the header already included
 	sendRequest: function(apiToCall, apiType, dataMethod, postParams, callbackOk, callbackError) {
 		var ajax = new Ajax({
-			url: "http://localhost:8081/api/"+apiToCall,
+			url: util.getServerUrl()+"api/"+apiToCall,
 			method: apiType,
 			handleAs: "json"
 		});
@@ -282,7 +283,7 @@ module.exports = kind({
 		if (callbackError) {
 			ajax.error(callbackError);
 		} else {
-			ajax.error(util.bindSafely(this, 'apiCallFail'));
+			ajax.error(utils.bindSafely(this, 'apiCallFail'));
 		}
 		ajax.go();
 	},
@@ -290,7 +291,7 @@ module.exports = kind({
 	// Generic API error handler: if auth error, open the dialog then relaunch the command
 	apiCallFail: function(inSender, inError) {
 		if (inError == 401) {
-			this.$.authDialog.setThen(util.bindSafely(this, inSender.headers["data-method"]));
+			this.$.authDialog.setThen(utils.bindSafely(this, inSender.headers["data-method"]));
 			this.$.authDialog.show();
 			this.$.authDialog.giveFocus();
 		} else {

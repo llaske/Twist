@@ -13,7 +13,9 @@ var
 var
 	MainView = require('./mainview'),
 	SearchView = require('./searchview'),
-	SettingsView = require('./settingsview');
+	SettingsView = require('./settingsview'),
+	Login = require('./login'),
+	Storage = require('./storage');
 
 var TwistPanel = kind({
 	name: 'Twist.Panel',
@@ -51,12 +53,15 @@ var TwistPanel = kind({
 	},
 });
 
-var TwistApp = module.exports = kind({
-	name: 'Twist.Application',
-	kind: Application,
-	view: TwistPanel
-});
+var TwistApp;
 
 ready(function () {
-	new TwistApp({name: 'app'});
+	Storage.getValue("token", function(token) {
+		TwistApp = kind({
+			name: 'Twist.Application',
+			kind: Application,
+			view: (!token ? Login : TwistPanel)
+		});
+		new TwistApp({name: 'app'});
+	});
 });
