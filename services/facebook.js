@@ -30,7 +30,8 @@ module.exports = {
 			post.message += ' ('+twist.author+')';
 		}
 		if (twist.image) {
-			post.picture = twist.image;
+			// Can't be done since 2.11: https://stackoverflow.com/questions/47348337/facebook-graph-v2-11-only-owners-of-the-url-have-the-ability-to-specify-the-pic
+			//post.picture = twist.image;
 		}
 		facebook.api('me/feed', 'post', post, function (res) {
 			if (!res || res.error) {
