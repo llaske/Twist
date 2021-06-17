@@ -31,6 +31,7 @@ module.exports = {
 		services.twitter = require('./services/twitter');
 		services.yammer = require('./services/yammer');
 		services.facebook = require('./services/facebook');
+		services.linkedin = require('./services/linkedin');
 		services.bitly = require('./services/bitly');
 		services.authorsuggest = require('./services/authorsuggest');
 	},
