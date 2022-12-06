@@ -9,7 +9,7 @@
 		"yammer-rest-api-client": "0.2.x",
 		"htmlparser": "1.7.x",
 		"soupselect": "0.2.x",
-		"express": "4.14.x",
+		"express": "4.17.x",
 		"body-parser": "1.15.x",
 		"morgan": "1.9.x",
 		"mongodb": "2.1.x",
