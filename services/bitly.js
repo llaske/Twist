@@ -23,22 +23,28 @@ module.exports = {
 		}
 
 		// Call bitly service
-		var url = "http://api.bit.ly/v3/shorten?apiKey="+keys.apiKey+"&login="+account.name+"&longUrl="+twist.url+"&format=json";
-		request({url: url}, function(error, response, body) {
-			var data = JSON.parse(response.body);
-			if (data.status_code != 200) {
+		request.post("https://api-ssl.bitly.com/v4/shorten",{
+			auth: {
+				bearer: keys.apiKey
+			},
+			json: true,
+			body: {
+				long_url: twist.url
+			}
+		}, function(error, response, body) {
+			if (response.statusCode > 205) {
 				callback({
 					aid: account._id,
 					provider: 'bitly',
 					name: account.name,
-					error: data.status_txt
+					error: "Error "+response.statusCode
 				});
 			} else {
 				callback({
 					aid: account._id,
 					provider: 'bitly',
 					name: account.name,
-					urlShortened: data.data.url
+					urlShortened: body.link
 				});
 			}
 		});
