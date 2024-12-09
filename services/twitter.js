@@ -1,6 +1,6 @@
 
 // Service to post in Twitter
-var twitter = require('twitter');
+const {Client} = require("twitter-api-sdk");
 
 module.exports = {
 	name: 'twitter',
@@ -26,17 +26,19 @@ module.exports = {
 		if (twist.author) {
 			content += ' ('+twist.author+')';
 		}
-		client.post('statuses/update', {status: content},  function(error, tweet, response){
-			var result = {
-				aid: account._id,
-				provider: 'twitter',
-				name: account.name
-			}
-			if (error) {
-				result.error = error[0].code + ": " + error[0].message;
-			} else {
-				result.id = tweet.id_str;
-			}
+
+		var result = {
+			aid: account._id,
+			provider: 'twitter',
+			name: account.name
+		}
+		client.tweets.createTweet({
+			text: content,
+		}).then((tweet) => {
+			result.id = tweet.data.id;
+			callback(result);
+		}).catch((e) => {
+			result.error = e.error.status + ": " + e.error.detail;
 			callback(result);
 		});
 	},
@@ -55,17 +57,18 @@ module.exports = {
 		}
 
 		// Get the Tweet matching the id
-		client.get('statuses/show', {id: twist.id}, function(error, tweet, response) {
-			var result = {
-				aid: account._id,
-				provider: 'twitter',
-				name: account.name
-			}
-			if (error) {
-				result.error = error[0].code + ": " + error[0].message;
-			} else {
-				result.text = tweet.text;
-			}
+		var result = {
+			aid: account._id,
+			provider: 'twitter',
+			name: account.name
+		}
+		twitterClient.tweets.findTweetsById({
+			ids: [twist.id]
+		}).then((tweet) => {
+			result.text = tweet.data.text;
+			callback(result);
+		}).catch((e) => {
+			result.error = e.error.status + ": " + e.error.detail;
 			callback(result);
 		});
 	},
@@ -84,15 +87,15 @@ module.exports = {
 		}
 
 		// Delete the Tweet matching the id
-		client.post('statuses/destroy', {id: twist.id}, function(error, tweet, response) {
-			var result = {
-				aid: account._id,
-				provider: 'twitter',
-				name: account.name
-			}
-			if (error) {
-				result.error = error[0].code + ": " + error[0].message;
-			}
+		var result = {
+			aid: account._id,
+			provider: 'twitter',
+			name: account.name
+		}
+		twitterClient.tweets.deleteTweetById(twist.id).then(() => {
+			callback(result);
+		}).catch((e) => {
+			result.error = e.error.status + ": " + e.error.detail;
 			callback(result);
 		});
 	}
@@ -102,16 +105,10 @@ module.exports = {
 function getClient(account) {
 	// Check keys presence
 	var keys = account.keys;
-	if (!keys || !keys.consumer_key || !keys.consumer_secret || !keys.access_token_key || !keys.access_token_secret) {
+	if (!keys || !keys.access_token_key) {
 		return null;
 	}
 
 	// Create twitter client
-	var client = new twitter({
-		consumer_key: keys.consumer_key,
-		consumer_secret: keys.consumer_secret,
-		access_token_key: keys.access_token_key,
-		access_token_secret: keys.access_token_secret
-	});
-	return client;
+	return new Client(keys.access_token_key);
 }
