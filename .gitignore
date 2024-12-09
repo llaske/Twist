@@ -91,3 +91,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+twistjs.code-workspace
